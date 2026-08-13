@@ -49,15 +49,15 @@
             </div>
           </div>
 
-          <div class="field">
+          <div class="field" id="teamNameField" style="display:none;">
             <label for="teamName">팀명<span class="req">*</span></label>
-            <p class="desc" id="teamNameDesc">개인으로 참가하시는 경우 본인 이름을 적어 주세요.</p>
-            <input type="text" id="teamName" required>
+            <p class="desc">팀 이름을 적어 주세요.</p>
+            <input type="text" id="teamName">
           </div>
 
           <div class="grid-2">
             <div class="field">
-              <label for="leaderName">대표자 성명<span class="req">*</span></label>
+              <label for="leaderName" id="leaderNameLabel">성명<span class="req">*</span></label>
               <input type="text" id="leaderName" required>
             </div>
             <div class="field">
@@ -253,14 +253,17 @@
   });
 
   const memberField = document.getElementById('memberField');
-  const teamDesc = document.getElementById('teamNameDesc');
-  document.querySelectorAll('input[name=entryType]').forEach((r) => {
-    r.addEventListener('change', () => {
-      const team = document.querySelector('input[name=entryType]:checked').value === 'team';
-      memberField.style.display = team ? '' : 'none';
-      teamDesc.textContent = team ? '팀 이름을 적어 주세요.' : '개인으로 참가하시는 경우 본인 이름을 적어 주세요.';
-    });
-  });
+  const teamNameField = document.getElementById('teamNameField');
+  const leaderNameLabel = document.getElementById('leaderNameLabel');
+  function syncEntryType() {
+    const team = document.querySelector('input[name=entryType]:checked').value === 'team';
+    memberField.style.display = team ? '' : 'none';
+    teamNameField.style.display = team ? '' : 'none';
+    document.getElementById('teamName').required = team;
+    leaderNameLabel.innerHTML = (team ? '대표자 성명' : '성명') + '<span class="req">*</span>';
+  }
+  document.querySelectorAll('input[name=entryType]').forEach((r) => r.addEventListener('change', syncEntryType));
+  syncEntryType();
 
   const sum = document.getElementById('summary');
   sum.addEventListener('input', () => { document.getElementById('sumCount').textContent = sum.value.length; });
@@ -315,9 +318,15 @@
     if (!/^\d{4,12}$/.test(pw)) return LAITY.msg(msg, 'err', '수정용 비밀번호는 숫자 4~12자리로 입력해 주세요.');
     if (pw !== val('password2')) return LAITY.msg(msg, 'err', '비밀번호가 서로 다릅니다. 다시 확인해 주세요.');
 
+    const entryType = document.querySelector('input[name=entryType]:checked').value;
+    if (entryType === 'team' && !val('teamName')) {
+      return LAITY.msg(msg, 'err', '팀명을 입력해 주세요.');
+    }
+
     const fd = new FormData();
-    fd.append('entryType', document.querySelector('input[name=entryType]:checked').value);
-    ['teamName','leaderName','leaderDept','leaderPhone','leaderEmail',
+    fd.append('entryType', entryType);
+    fd.append('teamName', entryType === 'team' ? val('teamName') : val('leaderName'));
+    ['leaderName','leaderDept','leaderPhone','leaderEmail',
      'caseName','aiTools','targetTask','summary','categoryEtc','password'].forEach((k) => fd.append(k, val(k)));
     fd.append('category', document.querySelector('input[name=category]:checked').value);
 

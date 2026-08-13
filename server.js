@@ -159,8 +159,13 @@ const txt = (v) => String(one(v) == null ? '' : one(v)).trim();
 
 app.post('/api/applications', async (req, res) => {
   const b = req.body;
-  const required = ['teamName', 'leaderName', 'leaderDept', 'leaderPhone', 'leaderEmail',
+  // 개인 참가는 팀명 대신 본인 성명을 사용합니다.
+  if (txt(b.entryType) !== 'team') b.teamName = txt(b.leaderName);
+  const required = ['leaderName', 'leaderDept', 'leaderPhone', 'leaderEmail',
     'category', 'caseName', 'aiTools', 'targetTask', 'summary', 'password'];
+  if (txt(b.entryType) === 'team' && !txt(b.teamName)) {
+    return res.status(400).json({ ok: false, error: '팀명을 입력해 주세요.' });
+  }
   for (const k of required) {
     if (!txt(b[k])) return res.status(400).json({ ok: false, error: '필수 항목이 비어 있습니다: ' + k });
   }
@@ -222,11 +227,28 @@ app.post('/api/applications', async (req, res) => {
 });
 
 app.post('/api/applications/lookup', (req, res) => {
-  const row = apps.find((r) => r.no === txt(req.body.no).toUpperCase());
-  if (!row || !U.verifyPassword(txt(req.body.password), row.pwSalt, row.pwHash)) {
-    return res.status(404).json({ ok: false, error: '접수번호 또는 비밀번호가 일치하지 않습니다.' });
+  // 성명(팀은 대표자 성명) 또는 접수번호로 조회할 수 있습니다.
+  const key = txt(req.body.name) || txt(req.body.no);
+  const password = txt(req.body.password);
+  if (!key || !password) {
+    return res.status(400).json({ ok: false, error: '성명과 비밀번호를 입력해 주세요.' });
   }
-  res.json({ ok: true, application: publicView(row) });
+
+  const upper = key.toUpperCase();
+  const candidates = apps.filter((r) => r.no === upper || r.leader.name === key);
+  const matched = candidates.filter((r) => U.verifyPassword(password, r.pwSalt, r.pwHash));
+
+  if (matched.length === 0) {
+    return res.status(404).json({ ok: false, error: '성명 또는 비밀번호가 일치하지 않습니다.' });
+  }
+  if (matched.length > 1) {
+    return res.status(409).json({
+      ok: false,
+      error: '같은 성명·비밀번호로 접수된 신청이 여러 건입니다. 접수번호를 입력해 주세요.',
+      candidates: matched.map((r) => ({ no: r.no, caseName: r.caseName })),
+    });
+  }
+  res.json({ ok: true, application: publicView(matched[0]) });
 });
 
 app.post('/api/applications/update', async (req, res) => {
@@ -242,6 +264,9 @@ app.post('/api/applications/update', async (req, res) => {
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
 
   const patch = {};
+  if (b.entryType !== undefined && txt(b.entryType) !== 'team' && b.leaderName !== undefined) {
+    b.teamName = txt(b.leaderName);
+  }
   const fields = ['entryType', 'teamName', 'category', 'categoryEtc', 'caseName', 'aiTools', 'targetTask', 'summary'];
   for (const f of fields) if (b[f] !== undefined) patch[f] = txt(b[f]);
   if (b.category !== undefined) {
