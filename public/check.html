@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>접수 확인 — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<link rel="icon" href="/img/emblem-green.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>접수 확인 · 수정</h1>
+    <p>접수번호와 신청 시 설정한 비밀번호로 신청 내용을 확인하고 파일을 올릴 수 있습니다.</p>
+    <img class="head-mascot" src="/img/mascot-guide.png" alt="">
+</div>
+</div>
+
+<div class="form-page">
+  <div class="wrap" style="max-width:800px;">
+    <div class="msg" id="msg"></div>
+
+    <!-- 로그인 -->
+    <div class="panel" id="loginArea" style="max-width:460px;margin:0 auto 20px;">
+      <h2><span class="n">🔒</span> 접수 내역 조회</h2>
+      <p class="hint">신청 완료 시 발급된 접수번호를 입력해 주세요.</p>
+      <div class="field">
+        <label for="no">접수번호</label>
+        <input type="text" id="no" placeholder="LAITY-2026-001" style="text-transform:uppercase;">
+      </div>
+      <div class="field">
+        <label for="pw">비밀번호</label>
+        <input type="password" id="pw" inputmode="numeric" placeholder="숫자 4~12자리">
+      </div>
+      <button class="btn btn-green" id="loginBtn" style="width:100%;">조회하기</button>
+      <p style="font-size:13.5px;color:var(--ink-3);margin:14px 0 0;text-align:center;">
+        접수번호를 잊으셨다면 <a href="/qna" style="color:var(--gu-green-d);text-decoration:underline;">Q&amp;A</a>로 문의해 주세요.
+      </p>
+    </div>
+
+    <!-- 조회 결과 -->
+    <div id="viewArea" style="display:none;">
+      <div class="panel">
+        <h2><span class="n">✓</span> <span id="vNo"></span> 접수 내역</h2>
+        <p class="hint">접수일시 <span id="vDate"></span> · 최종수정 <span id="vUpd"></span></p>
+        <div class="table-box">
+          <table class="info" id="vTable"></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="n">📎</span> 제출 자료</h2>
+        <p class="hint">제안서 제출 기간: <span id="propPeriod"></span></p>
+
+        <div class="field">
+          <span class="lb">AI 활용사례 제안서 [붙임 2]</span>
+          <div class="filelist" id="curProposal"></div>
+          <label class="filebox" for="proposal" style="margin-top:10px;">
+            <div class="ico">📄</div>
+            <div class="t">제안서 올리기 / 다시 올리기</div>
+            <div class="s">기존 파일이 있으면 교체됩니다</div>
+            <input type="file" id="proposal">
+          </label>
+          <div class="filelist" id="proposalList"></div>
+        </div>
+
+        <div class="field">
+          <span class="lb">증빙자료 (선택)</span>
+          <div class="filelist" id="curExtras"></div>
+          <label class="filebox" for="extras" style="margin-top:10px;">
+            <div class="ico">📎</div>
+            <div class="t">증빙자료 추가하기</div>
+            <div class="s">여러 개 선택할 수 있습니다</div>
+            <input type="file" id="extras" multiple>
+          </label>
+          <div class="filelist" id="extrasList"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2><span class="n">✎</span> 내용 수정</h2>
+        <p class="hint">접수 기간 안에는 언제든 수정할 수 있습니다.</p>
+        <div class="field">
+          <span class="lb">응모 분야</span>
+          <div class="choices" id="e_catChoices"></div>
+          <input type="text" id="e_categoryEtc" placeholder="기타 분야를 직접 입력" style="margin-top:10px;display:none;">
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>사례명</label><input type="text" id="e_caseName"></div>
+          <div class="field"><label>적용 업무</label><input type="text" id="e_targetTask"></div>
+        </div>
+        <div class="field"><label>활용 AI 도구</label><input type="text" id="e_aiTools"></div>
+        <div class="grid-2">
+          <div class="field"><label>팀명</label><input type="text" id="e_teamName"></div>
+          <div class="field"><label>소속(부서)</label><input type="text" id="e_leaderDept"></div>
+        </div>
+        <div class="grid-2">
+          <div class="field"><label>연락처</label><input type="tel" id="e_leaderPhone"></div>
+          <div class="field"><label>이메일</label><input type="email" id="e_leaderEmail"></div>
+        </div>
+        <div class="field">
+          <label>사례 요약 (300자 이내)</label>
+          <textarea id="e_summary" maxlength="300" style="min-height:150px;"></textarea>
+        </div>
+      </div>
+
+      <div class="submit-bar">
+        <button class="btn btn-line btn-lg" id="logoutBtn">닫기</button>
+        <button class="btn btn-green btn-lg" id="saveBtn">수정 내용 저장</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="/js/common.js"></script>
+<script>
+(async function () {
+  const c = await LAITY.mount('/check');
+  document.getElementById('propPeriod').textContent =
+    `${c.schedule.proposalOpen} ~ ${c.schedule.proposalClose}`;
+
+  const msg = document.getElementById('msg');
+  let cur = null, auth = { no: '', password: '' };
+  const removeExtras = [];
+
+  function val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
+
+  function render(a) {
+    cur = a;
+    document.getElementById('vNo').textContent = a.no;
+    document.getElementById('vDate').textContent = LAITY.fmtDate(a.createdAt);
+    document.getElementById('vUpd').textContent = LAITY.fmtDate(a.updatedAt);
+
+    const members = (a.members || []).map((m) => `${m.name}(${m.dept || ''})`).join(', ') || '-';
+    document.getElementById('vTable').innerHTML = `
+      <tr><th>참가 구분</th><td>${a.entryType === 'team' ? '팀' : '개인'} · ${LAITY.esc(a.teamName)}</td></tr>
+      <tr><th>대표자</th><td>${LAITY.esc(a.leader.name)} (${LAITY.esc(a.leader.dept)})</td></tr>
+      <tr><th>팀원</th><td>${LAITY.esc(members)}</td></tr>
+      <tr><th>응모 분야</th><td>${LAITY.esc(a.categoryName || a.category)}</td></tr>
+      <tr><th>사례명</th><td><strong>${LAITY.esc(a.caseName)}</strong></td></tr>
+      <tr><th>활용 AI 도구</th><td>${LAITY.esc(a.aiTools)}</td></tr>
+      <tr><th>적용 업무</th><td>${LAITY.esc(a.targetTask)}</td></tr>`;
+
+    // 현재 파일
+    const pf = a.files && a.files.proposal;
+    document.getElementById('curProposal').innerHTML = pf
+      ? `<div class="fileitem"><span>📄</span><span class="nm">${LAITY.esc(pf.original)}</span>
+         <span class="sz">${LAITY.fmtSize(pf.size)}</span>
+         <button type="button" onclick="dl('${pf.id}')">받기</button></div>`
+      : `<div class="fileitem" style="color:var(--ink-3);">아직 제출된 제안서가 없습니다.</div>`;
+
+    const ex = (a.files && a.files.extras) || [];
+    document.getElementById('curExtras').innerHTML = ex.length
+      ? ex.map((f) => `<div class="fileitem"><span>📎</span><span class="nm">${LAITY.esc(f.original)}</span>
+          <span class="sz">${LAITY.fmtSize(f.size)}</span>
+          <button type="button" onclick="dl('${f.id}')">받기</button>
+          <button type="button" onclick="rm('${f.id}', this)">삭제</button></div>`).join('')
+      : `<div class="fileitem" style="color:var(--ink-3);">아직 제출된 증빙자료가 없습니다.</div>`;
+
+    ['caseName', 'aiTools', 'targetTask', 'summary', 'teamName', 'categoryEtc'].forEach((k) => val('e_' + k, a[k]));
+    val('e_leaderDept', a.leader.dept);
+    val('e_leaderPhone', a.leader.phone);
+    val('e_leaderEmail', a.leader.email);
+    document.getElementById('e_catChoices').innerHTML = c.categories.map((x) => `
+      <label class="choice"><input type="radio" name="ecat" value="${x.key}" ${x.key === a.category ? 'checked' : ''}>
+      <span class="dot"></span>${x.name}</label>`).join('');
+    document.querySelectorAll('input[name=ecat]').forEach((r) => {
+      r.addEventListener('change', () => {
+        document.getElementById('e_categoryEtc').style.display =
+          document.querySelector('input[name=ecat]:checked').value === 'etc' ? '' : 'none';
+      });
+    });
+    document.getElementById('e_categoryEtc').style.display = a.category === 'etc' ? '' : 'none';
+
+    document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('viewArea').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.dl = async function (fileId) {
+    const r = await fetch('/api/applications/file', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...auth, fileId }),
+    });
+    if (!r.ok) return LAITY.msg(msg, 'err', '파일을 내려받지 못했습니다.');
+    const blob = await r.blob();
+    const cd = r.headers.get('Content-Disposition') || '';
+    let name = 'download';
+    const m = /filename\*=UTF-8''([^;]+)/.exec(cd);
+    if (m) name = decodeURIComponent(m[1]);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  window.rm = function (fileId, btn) {
+    if (!confirm('이 파일을 삭제할까요? 저장 버튼을 눌러야 반영됩니다.')) return;
+    removeExtras.push(fileId);
+    btn.closest('.fileitem').style.opacity = .4;
+    btn.closest('.fileitem').style.textDecoration = 'line-through';
+    btn.disabled = true;
+  };
+
+  function bindFile(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    input.addEventListener('change', () => {
+      list.innerHTML = Array.from(input.files || []).map((f) => `
+        <div class="fileitem"><span>➕</span><span class="nm">${LAITY.esc(f.name)}</span>
+        <span class="sz">${LAITY.fmtSize(f.size)}</span></div>`).join('');
+    });
+  }
+  bindFile('proposal', 'proposalList');
+  bindFile('extras', 'extrasList');
+
+  document.getElementById('loginBtn').onclick = async () => {
+    LAITY.hideMsg(msg);
+    auth = {
+      no: document.getElementById('no').value.trim().toUpperCase(),
+      password: document.getElementById('pw').value,
+    };
+    if (!auth.no || !auth.password) return LAITY.msg(msg, 'err', '접수번호와 비밀번호를 입력해 주세요.');
+    const r = await fetch('/api/applications/lookup', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(auth),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(msg, 'err', j.error);
+    render(j.application);
+  };
+  document.getElementById('pw').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  document.getElementById('logoutBtn').onclick = () => location.reload();
+
+  document.getElementById('saveBtn').onclick = async () => {
+    LAITY.hideMsg(msg);
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = '저장 중...';
+
+    const fd = new FormData();
+    fd.append('no', auth.no);
+    fd.append('password', auth.password);
+    ['caseName', 'aiTools', 'targetTask', 'summary', 'teamName', 'categoryEtc'].forEach((k) => {
+      fd.append(k, document.getElementById('e_' + k).value);
+    });
+    const ecat = document.querySelector('input[name=ecat]:checked');
+    if (ecat) fd.append('category', ecat.value);
+    fd.append('leaderName', cur.leader.name);
+    fd.append('leaderDept', document.getElementById('e_leaderDept').value);
+    fd.append('leaderPhone', document.getElementById('e_leaderPhone').value);
+    fd.append('leaderEmail', document.getElementById('e_leaderEmail').value);
+    if (removeExtras.length) fd.append('removeExtras', JSON.stringify(removeExtras));
+
+    const p = document.getElementById('proposal').files[0];
+    if (p) fd.append('proposal', p);
+    Array.from(document.getElementById('extras').files).forEach((f) => fd.append('extras', f));
+
+    try {
+      const r = await fetch('/api/applications/update', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      removeExtras.length = 0;
+      document.getElementById('proposal').value = '';
+      document.getElementById('extras').value = '';
+      document.getElementById('proposalList').innerHTML = '';
+      document.getElementById('extrasList').innerHTML = '';
+      render(j.application);
+      LAITY.msg(msg, 'ok', '수정 내용이 저장되었습니다.');
+    } catch (e) {
+      LAITY.msg(msg, 'err', e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = '수정 내용 저장';
+    }
+  };
+})();
+</script>
+</body>
+</html>

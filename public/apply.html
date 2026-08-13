@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>참가 신청 — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<link rel="icon" href="/img/emblem-green.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>참가 신청</h1>
+    <p id="periodText"></p>
+  </div>
+  <img class="head-mascot" src="/img/mascot-welcome.png" alt="">
+</div>
+
+<div class="form-page">
+  <div class="wrap" style="max-width:840px;">
+
+    <div id="formArea">
+      <div class="msg" id="msg"></div>
+
+      <div class="notice-box" style="margin-bottom:20px;">
+        <strong>신청 전에 확인해 주세요</strong>
+        <ul>
+          <li>이 화면은 <strong>[붙임 1] 참가신청서</strong>를 그대로 옮긴 것입니다. 따로 한글 파일을 작성하지 않으셔도 됩니다.</li>
+          <li><strong>[붙임 2] AI 활용사례 제안서</strong>는 양식을 내려받아 작성한 뒤 파일로 첨부해 주세요.
+              지금 첨부하지 않아도 되며, <strong id="propPeriod2"></strong> 기간에 ‘접수 확인’ 메뉴에서 올릴 수 있습니다.</li>
+          <li>마지막에 설정하는 <strong>수정용 비밀번호</strong>로 나중에 내용을 고치거나 파일을 다시 올릴 수 있습니다.</li>
+        </ul>
+      </div>
+
+      <form id="applyForm" autocomplete="off">
+
+        <!-- 1. 참가자 정보 -->
+        <div class="panel">
+          <h2><span class="n">1</span> 참가자 정보</h2>
+          <p class="hint">시상 및 연락에 사용됩니다.</p>
+
+          <div class="field">
+            <span class="lb">참가 구분<span class="req">*</span></span>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="entryType" value="individual" checked><span class="dot"></span>개인</label>
+              <label class="choice"><input type="radio" name="entryType" value="team"><span class="dot"></span>팀 (3인 이내)</label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="teamName">팀명<span class="req">*</span></label>
+            <p class="desc" id="teamNameDesc">개인으로 참가하시는 경우 본인 이름을 적어 주세요.</p>
+            <input type="text" id="teamName" required>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="leaderName">대표자 성명<span class="req">*</span></label>
+              <input type="text" id="leaderName" required>
+            </div>
+            <div class="field">
+              <label for="leaderDept">소속(부서)<span class="req">*</span></label>
+              <input type="text" id="leaderDept" required placeholder="예: 기획처 기획팀">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="leaderPhone">연락처<span class="req">*</span></label>
+              <input type="tel" id="leaderPhone" required placeholder="010-0000-0000">
+            </div>
+            <div class="field">
+              <label for="leaderEmail">이메일<span class="req">*</span></label>
+              <input type="email" id="leaderEmail" required placeholder="name@gwangju.ac.kr">
+            </div>
+          </div>
+
+          <div class="field" id="memberField" style="display:none;">
+            <span class="lb">팀원 (최대 2명)</span>
+            <p class="desc">성명과 소속(부서)을 입력해 주세요.</p>
+            <div class="grid-2" style="margin-bottom:10px;">
+              <input type="text" id="m1name" placeholder="팀원 1 성명">
+              <input type="text" id="m1dept" placeholder="팀원 1 소속(부서)">
+            </div>
+            <div class="grid-2">
+              <input type="text" id="m2name" placeholder="팀원 2 성명">
+              <input type="text" id="m2dept" placeholder="팀원 2 소속(부서)">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 응모 내용 -->
+        <div class="panel">
+          <h2><span class="n">2</span> 응모 내용</h2>
+          <p class="hint">AI를 활용해 업무에서 성과를 낸 사례를 소개해 주세요.</p>
+
+          <div class="field">
+            <span class="lb">응모 분야<span class="req">*</span></span>
+            <div class="choices" id="catChoices"></div>
+            <input type="text" id="categoryEtc" placeholder="기타 분야를 직접 입력해 주세요" style="margin-top:10px;display:none;">
+          </div>
+
+          <div class="field">
+            <label for="caseName">사례명<span class="req">*</span></label>
+            <input type="text" id="caseName" required placeholder="예: 주간회의자료 자동취합">
+          </div>
+
+          <div class="field">
+            <label for="aiTools">활용 AI 도구<span class="req">*</span></label>
+            <p class="desc">사용한 서비스를 모두 적어 주세요. 도구 종류는 평가에 영향을 주지 않습니다.</p>
+            <input type="text" id="aiTools" required placeholder="예: Claude, ChatGPT, Copilot, Gemini 등">
+          </div>
+
+          <div class="field">
+            <label for="targetTask">적용 업무<span class="req">*</span></label>
+            <input type="text" id="targetTask" required placeholder="예: 주간 부서회의 자료 작성">
+          </div>
+
+          <div class="field">
+            <label for="summary">사례 요약<span class="req">*</span></label>
+            <p class="desc">300자 이내로 작성해 주세요.</p>
+            <textarea id="summary" maxlength="300" required style="min-height:150px;"
+              placeholder="예) 매주 월요일 회의자료를 만들려면 5개 팀 메일을 하나씩 열어 옮겨 붙여야 했습니다. Claude로 메일함을 읽어 팀별 보고를 표로 정리하고 회의자료 초안까지 만들어 주는 방식을 마련했습니다. 6월부터 매주 사용 중이며 3시간 걸리던 작업이 15분으로 줄었습니다."></textarea>
+            <div style="text-align:right;font-size:13px;color:var(--ink-3);margin-top:4px;">
+              <span id="sumCount">0</span> / 300자
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 제출 자료 -->
+        <div class="panel">
+          <h2><span class="n">3</span> 제출 자료</h2>
+          <p class="hint">[붙임 2] 양식을 내려받아 작성한 뒤 첨부해 주세요.</p>
+
+          <div class="field">
+            <span class="lb">AI 활용사례 제안서 [붙임 2]</span>
+            <p class="desc">
+              <a id="propFormLink" href="#" style="color:var(--gu-green-d);font-weight:700;text-decoration:underline;">제안서 양식 내려받기</a>
+              · A4 5쪽 이내 · 제출 기간 <span id="propPeriod"></span>
+            </p>
+            <label class="filebox" for="proposal">
+              <div class="ico">📄</div>
+              <div class="t">제안서 파일 선택</div>
+              <div class="s">hwp, hwpx, pdf, docx / 최대 <span class="maxsize"></span></div>
+              <input type="file" id="proposal">
+            </label>
+            <div class="filelist" id="proposalList"></div>
+          </div>
+
+          <div class="field">
+            <span class="lb">증빙자료 (선택)</span>
+            <p class="desc">화면 캡처, 산출물 예시 등 사례를 뒷받침하는 자료가 있으면 함께 올려 주세요. (최대 10개)</p>
+            <label class="filebox" for="extras">
+              <div class="ico">📎</div>
+              <div class="t">증빙자료 선택 (여러 개 가능)</div>
+              <div class="s">png, jpg, zip, mp4, pptx 등 / 개당 최대 <span class="maxsize"></span></div>
+              <input type="file" id="extras" multiple>
+            </label>
+            <div class="filelist" id="extrasList"></div>
+          </div>
+        </div>
+
+        <!-- 4. 확인 및 서약 -->
+        <div class="panel">
+          <h2><span class="n">4</span> 확인 및 서약 사항</h2>
+          <p class="hint">모든 항목에 동의하셔야 신청이 완료됩니다.</p>
+
+          <div style="margin-bottom:14px;">
+            <div class="check-line"><input type="checkbox" id="ag1"><label for="ag1">본 사례는 본인(팀)이 직접 수행한 것이며, 교내·외 타 대회 수상작이 아님을 확인합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag2"><label for="ag2">제출 자료에 개인정보 등 민감정보가 포함되어 있지 않음을 확인합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag3"><label for="ag3">사례 수행 과정에서 교내 정보보안 지침 및 AI 이용 수칙을 준수하였음을 확인합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag4"><label for="ag4">수상 시 본 사례가 교내 공유·확산 자료로 활용되는 것에 동의합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag5"><label for="ag5">신청서 및 제안서 기재 내용이 사실과 다를 경우 심사 제외·수상 취소될 수 있음을 확인합니다.</label></div>
+            <div style="text-align:right;margin-top:6px;">
+              <button type="button" class="btn btn-line btn-sm" id="checkAll">전체 선택</button>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--line-2);padding-top:14px;">
+            <p class="desc" style="margin-bottom:8px;">
+              <strong>개인정보 수집·이용 안내</strong><br>
+              수집항목: 성명, 소속, 연락처, 이메일 / 이용목적: 대회 운영 및 시상 / 보유기간: 대회 종료 후 1년<br>
+              동의를 거부할 수 있으나 이 경우 참가가 제한될 수 있습니다.
+            </p>
+            <div class="check-line"><input type="checkbox" id="agPrivacy"><label for="agPrivacy">위 개인정보 수집·이용에 동의합니다.<span class="req">*</span></label></div>
+          </div>
+        </div>
+
+        <!-- 5. 비밀번호 -->
+        <div class="panel">
+          <h2><span class="n">5</span> 수정용 비밀번호</h2>
+          <p class="hint">접수 후 내용을 수정하거나 제안서를 올릴 때 사용합니다.</p>
+          <div class="grid-2">
+            <div class="field">
+              <label for="password">비밀번호<span class="req">*</span></label>
+              <p class="desc">숫자 4~12자리</p>
+              <input type="password" id="password" required inputmode="numeric" placeholder="예: 1234">
+            </div>
+            <div class="field">
+              <label for="password2">비밀번호 확인<span class="req">*</span></label>
+              <p class="desc">한 번 더 입력해 주세요</p>
+              <input type="password" id="password2" required inputmode="numeric" placeholder="다시 입력">
+            </div>
+          </div>
+        </div>
+
+        <div class="submit-bar">
+          <a class="btn btn-line btn-lg" href="/">취소</a>
+          <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">신청서 제출하기</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 완료 화면 -->
+    <div class="panel done" id="doneArea" style="display:none;">
+      <img class="mascot" src="/img/mascot-cheer.png" alt="">
+      <h2>참가 신청이 완료되었습니다</h2>
+      <p>접수번호를 꼭 기록해 두세요. 설정하신 비밀번호와 함께 접수 확인·수정에 사용됩니다.</p>
+      <div class="no" id="doneNo"></div>
+      <p style="font-size:14px;color:var(--ink-3);">접수번호</p>
+      <div style="margin-top:26px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a class="btn btn-line" href="/">메인으로</a>
+        <a class="btn btn-primary" href="/check">접수 확인하러 가기</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="/js/common.js"></script>
+<script>
+(async function () {
+  const c = await LAITY.mount('/apply');
+  const s = c.schedule;
+
+  document.getElementById('periodText').textContent =
+    `접수 기간 ${s.applyOpen} ~ ${s.applyClose} (${LAITY.dday(s.applyClose)})`;
+  document.getElementById('propPeriod').textContent = `${s.proposalOpen} ~ ${s.proposalClose}`;
+  document.getElementById('propPeriod2').textContent = `${s.proposalOpen} ~ ${s.proposalClose}`;
+  document.getElementById('propFormLink').href = (c.forms && c.forms.proposal) || '#';
+  document.querySelectorAll('.maxsize').forEach((e) => { e.textContent = c.upload.maxFileSizeMB + 'MB'; });
+
+  document.getElementById('catChoices').innerHTML = c.categories.map((x) => `
+    <label class="choice"><input type="radio" name="category" value="${x.key}"><span class="dot"></span>${x.name}</label>`).join('');
+  document.querySelectorAll('input[name=category]').forEach((r) => {
+    r.addEventListener('change', () => {
+      const etc = document.querySelector('input[name=category]:checked').value === 'etc';
+      document.getElementById('categoryEtc').style.display = etc ? '' : 'none';
+    });
+  });
+
+  const memberField = document.getElementById('memberField');
+  const teamDesc = document.getElementById('teamNameDesc');
+  document.querySelectorAll('input[name=entryType]').forEach((r) => {
+    r.addEventListener('change', () => {
+      const team = document.querySelector('input[name=entryType]:checked').value === 'team';
+      memberField.style.display = team ? '' : 'none';
+      teamDesc.textContent = team ? '팀 이름을 적어 주세요.' : '개인으로 참가하시는 경우 본인 이름을 적어 주세요.';
+    });
+  });
+
+  const sum = document.getElementById('summary');
+  sum.addEventListener('input', () => { document.getElementById('sumCount').textContent = sum.value.length; });
+
+  document.getElementById('checkAll').onclick = () => {
+    ['ag1','ag2','ag3','ag4','ag5','agPrivacy'].forEach((id) => { document.getElementById(id).checked = true; });
+  };
+
+  function bindFile(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    input.addEventListener('change', () => {
+      const files = Array.from(input.files || []);
+      list.innerHTML = files.map((f, i) => `
+        <div class="fileitem"><span>📎</span><span class="nm">${LAITY.esc(f.name)}</span>
+        <span class="sz">${LAITY.fmtSize(f.size)}</span>
+        <button type="button" data-i="${i}">삭제</button></div>`).join('');
+      list.querySelectorAll('button').forEach((b) => {
+        b.onclick = () => {
+          const dt = new DataTransfer();
+          files.forEach((f, i) => { if (i !== Number(b.dataset.i)) dt.items.add(f); });
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change'));
+        };
+      });
+    });
+  }
+  bindFile('proposal', 'proposalList');
+  bindFile('extras', 'extrasList');
+
+  const form = document.getElementById('applyForm');
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('submitBtn');
+  const val = (id) => document.getElementById(id).value.trim();
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    LAITY.hideMsg(msg);
+
+    if (!document.querySelector('input[name=category]:checked')) {
+      return LAITY.msg(msg, 'err', '응모 분야를 선택해 주세요.');
+    }
+    for (const id of ['ag1','ag2','ag3','ag4','ag5']) {
+      if (!document.getElementById(id).checked) {
+        return LAITY.msg(msg, 'err', '확인 및 서약 사항 5개 항목에 모두 동의해 주세요.');
+      }
+    }
+    if (!document.getElementById('agPrivacy').checked) {
+      return LAITY.msg(msg, 'err', '개인정보 수집·이용에 동의해 주세요.');
+    }
+    const pw = val('password');
+    if (!/^\d{4,12}$/.test(pw)) return LAITY.msg(msg, 'err', '수정용 비밀번호는 숫자 4~12자리로 입력해 주세요.');
+    if (pw !== val('password2')) return LAITY.msg(msg, 'err', '비밀번호가 서로 다릅니다. 다시 확인해 주세요.');
+
+    const fd = new FormData();
+    fd.append('entryType', document.querySelector('input[name=entryType]:checked').value);
+    ['teamName','leaderName','leaderDept','leaderPhone','leaderEmail',
+     'caseName','aiTools','targetTask','summary','categoryEtc','password'].forEach((k) => fd.append(k, val(k)));
+    fd.append('category', document.querySelector('input[name=category]:checked').value);
+
+    const members = [
+      { name: val('m1name'), dept: val('m1dept') },
+      { name: val('m2name'), dept: val('m2dept') },
+    ].filter((m) => m.name);
+    fd.append('members', JSON.stringify(members));
+
+    fd.append('agreements', JSON.stringify(['ag1','ag2','ag3','ag4','ag5'].map((id) => document.getElementById(id).checked)));
+    fd.append('agreePrivacy', 'true');
+    fd.append('agreeAll', 'true');
+
+    const p = document.getElementById('proposal').files[0];
+    if (p) fd.append('proposal', p);
+    Array.from(document.getElementById('extras').files).forEach((f) => fd.append('extras', f));
+
+    btn.disabled = true; btn.textContent = '제출 중입니다...';
+    try {
+      const r = await fetch('/api/applications', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || '제출에 실패했습니다.');
+      document.getElementById('formArea').style.display = 'none';
+      document.getElementById('doneArea').style.display = '';
+      document.getElementById('doneNo').textContent = j.no;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      LAITY.msg(msg, 'err', err.message);
+      btn.disabled = false; btn.textContent = '신청서 제출하기';
+    }
+  });
+})();
+</script>
+</body>
+</html>

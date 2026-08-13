@@ -1,0 +1,22 @@
+# Render 배포 설정 파일
+# 저장소를 Render 에 연결하면 이 파일을 자동으로 읽어 설정을 잡아 줍니다.
+services:
+  - type: web
+    name: laity-contest
+    runtime: node
+    plan: starter          # free 로 바꾸면 무료지만 디스크를 붙일 수 없습니다
+    region: singapore
+    buildCommand: ""       # 설치할 패키지가 없습니다
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data/db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+    disk:                  # 신청 내용과 첨부파일이 재시작 후에도 남도록 하는 저장소
+      name: laity-data
+      mountPath: /var/data
+      sizeGB: 2

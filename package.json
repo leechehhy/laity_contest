@@ -1,0 +1,12 @@
+{
+  "name": "laity-contest",
+  "version": "1.0.0",
+  "description": "제1회 광주대학교 L'AI'TY 경진대회 참가신청 사이트 (외부 라이브러리 없음)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

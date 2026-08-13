@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Q&amp;A — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<link rel="icon" href="/img/emblem-green.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>Q&amp;A</h1>
+    <p>자주 묻는 질문을 먼저 확인해 주세요. 답을 찾지 못하셨다면 아래에 질문을 남겨 주시면 담당자가 답변드립니다.</p>
+    <img class="head-mascot" src="/img/mascot-guide.png" alt="">
+</div>
+</div>
+
+<div class="form-page">
+  <div class="wrap" style="max-width:900px;">
+
+    <!-- FAQ -->
+    <h2 style="font-size:21px;letter-spacing:-.02em;margin:0 0 16px;">자주 묻는 질문</h2>
+    <div class="faq" id="faq"></div>
+
+    <!-- 질문 게시판 -->
+    <div style="display:flex;align-items:center;gap:12px;margin:48px 0 16px;flex-wrap:wrap;">
+      <h2 style="font-size:21px;letter-spacing:-.02em;margin:0;">질문 남기기</h2>
+      <span style="color:var(--ink-3);font-size:14px;">담당자가 확인 후 답변드립니다</span>
+      <button class="btn btn-green btn-sm" id="writeBtn" style="margin-left:auto;">＋ 질문 작성</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <!-- 작성 폼 -->
+    <div class="panel" id="writeArea" style="display:none;">
+      <h2><span class="n">✎</span> 질문 작성</h2>
+      <p class="hint">비밀글로 등록하면 본인과 담당자만 내용을 볼 수 있습니다.</p>
+      <div class="grid-3">
+        <div class="field"><label>이름<span class="req">*</span></label><input type="text" id="q_name"></div>
+        <div class="field"><label>소속(부서)</label><input type="text" id="q_dept"></div>
+        <div class="field"><label>이메일</label><input type="email" id="q_email" placeholder="답변 알림용(선택)"></div>
+      </div>
+      <div class="field"><label>제목<span class="req">*</span></label><input type="text" id="q_title"></div>
+      <div class="field"><label>내용<span class="req">*</span></label><textarea id="q_body" placeholder="궁금한 점을 편하게 적어 주세요."></textarea></div>
+      <div class="grid-2">
+        <div class="field">
+          <label>비밀번호<span class="req">*</span></label>
+          <p class="desc">비밀글 열람 시 사용합니다 (숫자 4~12자리)</p>
+          <input type="password" id="q_pw" inputmode="numeric">
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <label class="choice box" style="margin-bottom:2px;">
+            <input type="checkbox" id="q_secret"><span class="dot"></span>비밀글로 등록
+          </label>
+        </div>
+      </div>
+      <div class="submit-bar" style="margin-top:6px;">
+        <button class="btn btn-line" id="cancelBtn">취소</button>
+        <button class="btn btn-green" id="postBtn">질문 등록</button>
+      </div>
+    </div>
+
+    <!-- 목록 -->
+    <div class="table-box">
+      <table class="board">
+        <thead>
+          <tr>
+            <th class="c" style="width:70px;">번호</th>
+            <th class="t">제목</th>
+            <th class="c" style="width:100px;">작성자</th>
+            <th class="c" style="width:120px;">등록일</th>
+            <th class="c" style="width:90px;">답변</th>
+          </tr>
+        </thead>
+        <tbody id="qlist"></tbody>
+      </table>
+    </div>
+
+    <p style="color:var(--ink-3);font-size:14px;margin-top:16px;">
+      ※ 급한 문의는 <span id="contactLine"></span>로 연락해 주세요.
+    </p>
+  </div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="mTitle"></h3>
+    <div class="meta" id="mMeta"></div>
+    <div class="body" id="mBody"></div>
+    <div id="mAnswer"></div>
+    <div style="text-align:right;margin-top:22px;">
+      <button class="btn btn-line btn-sm" onclick="document.getElementById('modal').classList.remove('show')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="/js/common.js"></script>
+<script>
+(async function () {
+  const c = await LAITY.mount('/qna');
+  const msg = document.getElementById('msg');
+
+  document.getElementById('contactLine').textContent =
+    `${c.contact.dept} ${c.contact.tel} / ${c.contact.email}`;
+
+  document.getElementById('faq').innerHTML = c.faq.map((f) => `
+    <details>
+      <summary>${LAITY.esc(f.q)}</summary>
+      <div class="a">${LAITY.esc(f.a)}</div>
+    </details>`).join('');
+
+  const writeArea = document.getElementById('writeArea');
+  document.getElementById('writeBtn').onclick = () => {
+    writeArea.style.display = writeArea.style.display === 'none' ? '' : 'none';
+    if (writeArea.style.display === '') writeArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+  document.getElementById('cancelBtn').onclick = () => { writeArea.style.display = 'none'; };
+
+  async function load() {
+    const r = await fetch('/api/questions');
+    const j = await r.json();
+    const tb = document.getElementById('qlist');
+    if (!j.questions.length) {
+      tb.innerHTML = `<tr><td colspan="5" class="c" style="padding:44px;color:var(--ink-3);">
+        아직 등록된 질문이 없습니다. 첫 질문을 남겨 보세요.</td></tr>`;
+      return;
+    }
+    tb.innerHTML = j.questions.map((q) => `
+      <tr>
+        <td class="c" style="color:var(--ink-3);font-size:13px;">${q.seq}</td>
+        <td class="t">
+          <span class="q-title" data-id="${q.id}" data-secret="${q.secret}">
+            ${q.secret ? '🔒 ' : ''}${LAITY.esc(q.title)}
+          </span>
+        </td>
+        <td class="c">${LAITY.esc(q.name)}</td>
+        <td class="c" style="color:var(--ink-3);font-size:13px;">${q.createdAt.slice(0, 10)}</td>
+        <td class="c">${q.answered ? '<span class="badge done">답변완료</span>' : '<span class="badge wait">대기</span>'}</td>
+      </tr>`).join('');
+
+    tb.querySelectorAll('.q-title').forEach((el) => {
+      el.onclick = () => open(el.dataset.id, el.dataset.secret === 'true', j.questions);
+    });
+  }
+
+  async function open(id, secret, list) {
+    let data;
+    if (secret) {
+      const pw = prompt('비밀글입니다. 작성 시 입력한 비밀번호를 입력해 주세요.');
+      if (!pw) return;
+      const r = await fetch('/api/questions/open', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, password: pw }),
+      });
+      const j = await r.json();
+      if (!j.ok) return alert(j.error);
+      data = j.question;
+    } else {
+      const q = list.find((x) => x.id === id);
+      data = { title: q.title, body: q.body, answer: q.answer };
+    }
+    const q = list.find((x) => x.id === id);
+    document.getElementById('mTitle').textContent = data.title;
+    document.getElementById('mMeta').textContent =
+      `${q.name} · ${LAITY.fmtDate(q.createdAt)}${q.dept ? ' · ' + q.dept : ''}`;
+    document.getElementById('mBody').textContent = data.body || '';
+    document.getElementById('mAnswer').innerHTML = data.answer && data.answer.body
+      ? `<div class="answer-box"><div class="lb">담당자 답변</div>${LAITY.esc(data.answer.body).replace(/\n/g, '<br>')}
+         <div style="color:var(--ink-3);font-size:12.5px;margin-top:10px;">${LAITY.fmtDate(data.answer.answeredAt)}</div></div>`
+      : `<div class="answer-box" style="border-color:var(--line);background:var(--bg-soft);color:var(--ink-3);">
+         아직 답변이 등록되지 않았습니다.</div>`;
+    document.getElementById('modal').classList.add('show');
+  }
+
+  document.getElementById('modal').onclick = (e) => {
+    if (e.target.id === 'modal') e.target.classList.remove('show');
+  };
+
+  document.getElementById('postBtn').onclick = async () => {
+    LAITY.hideMsg(msg);
+    const payload = {
+      name: document.getElementById('q_name').value.trim(),
+      dept: document.getElementById('q_dept').value.trim(),
+      email: document.getElementById('q_email').value.trim(),
+      title: document.getElementById('q_title').value.trim(),
+      body: document.getElementById('q_body').value.trim(),
+      password: document.getElementById('q_pw').value,
+      secret: document.getElementById('q_secret').checked,
+    };
+    if (!payload.name || !payload.title || !payload.body) {
+      return LAITY.msg(msg, 'err', '이름, 제목, 내용을 모두 입력해 주세요.');
+    }
+    if (!/^\d{4,12}$/.test(payload.password)) {
+      return LAITY.msg(msg, 'err', '비밀번호는 숫자 4~12자리로 입력해 주세요.');
+    }
+    const r = await fetch('/api/questions', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(msg, 'err', j.error);
+    ['q_name', 'q_dept', 'q_email', 'q_title', 'q_body', 'q_pw'].forEach((id) => { document.getElementById(id).value = ''; });
+    document.getElementById('q_secret').checked = false;
+    writeArea.style.display = 'none';
+    LAITY.msg(msg, 'ok', '질문이 등록되었습니다. 담당자 확인 후 답변드리겠습니다.');
+    load();
+  };
+
+  load();
+})();
+</script>
+</body>
+</html>
