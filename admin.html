@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<link rel="icon" href="/img/emblem-green.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<div class="page-head">
+  <div class="wrap">
+    <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+      <div>
+        <h1>관리자</h1>
+        <p>참가신청 현황을 확인하고 엑셀·첨부파일로 내려받을 수 있습니다.</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" style="margin-left:auto;display:none;">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<div class="form-page">
+  <div class="wrap">
+
+    <!-- 로그인 -->
+    <div class="panel" id="loginArea" style="max-width:420px;margin:40px auto;">
+      <h2><span class="n">🔒</span> 관리자 로그인</h2>
+      <p class="hint">config.json에 설정한 비밀번호를 입력하세요.</p>
+      <div class="msg" id="lmsg"></div>
+      <div class="field">
+        <label for="pw">비밀번호</label>
+        <input type="password" id="pw">
+      </div>
+      <button class="btn btn-green" id="loginBtn" style="width:100%;">로그인</button>
+    </div>
+
+    <!-- 대시보드 -->
+    <div id="dash" style="display:none;">
+      <div class="stat-row" id="stats"></div>
+
+      <div class="tabs">
+        <button class="on" data-tab="apps">참가신청 목록</button>
+        <button data-tab="qna">질의응답 관리 <span id="qnaBadge" class="badge wait" style="display:none;margin-left:4px;"></span></button>
+      </div>
+
+      <!-- 신청 목록 -->
+      <div id="tab-apps">
+        <div class="admin-bar">
+          <input type="text" id="search" placeholder="이름·부서·서비스명 검색" style="width:260px;">
+          <select id="filterCat" style="width:180px;"><option value="">전체 분야</option></select>
+          <select id="filterProp" style="width:180px;">
+            <option value="">제안서 전체</option>
+            <option value="y">제안서 제출</option>
+            <option value="n">제안서 미제출</option>
+          </select>
+          <span class="spacer"></span>
+          <a class="btn btn-green btn-sm" href="/api/admin/applications.xlsx">📊 엑셀 다운로드</a>
+          <a class="btn btn-line btn-sm" href="/api/admin/files.zip">🗜 첨부파일 전체 ZIP</a>
+        </div>
+
+        <div class="tbl-scroll">
+          <table class="adm">
+            <thead>
+              <tr>
+                <th>접수번호</th><th>접수일</th><th>구분</th><th>팀명</th><th>대표자</th><th>소속</th>
+                <th>연락처</th><th>분야</th><th>사례명</th><th>활용 AI 도구</th>
+                <th>적용 업무</th><th>제안서</th><th>증빙</th><th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="appRows"></tbody>
+          </table>
+        </div>
+        <p style="color:var(--ink-3);font-size:13.5px;margin-top:12px;">
+          ※ 파일명을 클릭하면 개별 다운로드됩니다. ‘첨부파일 전체 ZIP’은 신청자별 폴더로 정리되어 내려받아집니다.
+        </p>
+      </div>
+
+      <!-- Q&A -->
+      <div id="tab-qna" style="display:none;">
+        <div class="admin-bar">
+          <div class="choices" id="qnaFilter">
+            <label class="choice"><input type="radio" name="qf" value="wait" checked><span class="dot"></span>답변대기 <span id="cntWait">0</span></label>
+            <label class="choice"><input type="radio" name="qf" value="done"><span class="dot"></span>답변완료 <span id="cntDone">0</span></label>
+            <label class="choice"><input type="radio" name="qf" value="all"><span class="dot"></span>전체 <span id="cntAll">0</span></label>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn btn-line btn-sm" id="qnaReload">새로고침</button>
+        </div>
+        <div class="msg" id="qmsg"></div>
+        <div id="qnaList"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="footer"></div>
+
+<script src="/js/common.js"></script>
+<script>
+(async function () {
+  const c = await LAITY.mount('');
+  const lmsg = document.getElementById('lmsg');
+  let APPS = [];
+
+  const s = await (await fetch('/api/admin/session')).json();
+  if (s.ok) enter();
+
+  document.getElementById('loginBtn').onclick = login;
+  document.getElementById('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+
+  async function login() {
+    LAITY.hideMsg(lmsg);
+    const r = await fetch('/api/admin/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: document.getElementById('pw').value }),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(lmsg, 'err', j.error);
+    enter();
+  }
+
+  async function logout() {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    location.reload();
+  }
+  document.getElementById('logoutBtn').onclick = logout;
+
+  async function enter() {
+    document.getElementById('loginArea').style.display = 'none';
+    document.getElementById('dash').style.display = '';
+    document.getElementById('logoutBtn').style.display = '';
+    document.getElementById('filterCat').innerHTML =
+      '<option value="">전체 분야</option>' + c.categories.map((x) => `<option value="${x.key}">${x.name}</option>`).join('');
+    await loadApps();
+    await loadQna();
+  }
+
+  document.querySelectorAll('.tabs button').forEach((b) => {
+    b.onclick = () => {
+      document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('tab-apps').style.display = b.dataset.tab === 'apps' ? '' : 'none';
+      document.getElementById('tab-qna').style.display = b.dataset.tab === 'qna' ? '' : 'none';
+    };
+  });
+
+  async function loadApps() {
+    const j = await (await fetch('/api/admin/applications')).json();
+    if (!j.ok) return;
+    APPS = j.applications;
+
+    const total = APPS.length;
+    const withProp = APPS.filter((a) => a.files && a.files.proposal).length;
+    const withExtra = APPS.filter((a) => a.files && a.files.extras && a.files.extras.length).length;
+    const teams = APPS.filter((a) => a.entryType === 'team').length;
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="k">총 접수</div><div class="v">${total}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> 건</span></div></div>
+      <div class="stat"><div class="k">개인 / 팀</div><div class="v">${total - teams} / ${teams}</div></div>
+      <div class="stat"><div class="k">제안서 제출</div><div class="v">${withProp}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>
+      <div class="stat"><div class="k">증빙자료 제출</div><div class="v">${withExtra}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>`;
+
+    renderApps();
+  }
+
+  function renderApps() {
+    const kw = document.getElementById('search').value.trim().toLowerCase();
+    const cat = document.getElementById('filterCat').value;
+    const prop = document.getElementById('filterProp').value;
+
+    const rows = APPS.filter((a) => {
+      if (cat && a.category !== cat) return false;
+      const hasProp = !!(a.files && a.files.proposal);
+      if (prop === 'y' && !hasProp) return false;
+      if (prop === 'n' && hasProp) return false;
+      if (kw) {
+        const hay = [a.no, a.leader.name, a.leader.dept, a.caseName, a.summary, a.teamName, a.aiTools]
+          .join(' ').toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    const tb = document.getElementById('appRows');
+    if (!rows.length) {
+      tb.innerHTML = `<tr><td colspan="14" style="text-align:center;padding:44px;color:var(--ink-3);">
+        표시할 신청서가 없습니다.</td></tr>`;
+      return;
+    }
+    tb.innerHTML = rows.map((a) => {
+      const p = a.files && a.files.proposal;
+      const ex = (a.files && a.files.extras) || [];
+      return `<tr>
+        <td><strong>${a.no}</strong></td>
+        <td>${a.createdAt.slice(0, 10)}</td>
+        <td>${a.entryType === 'team' ? '팀' : '개인'}</td>
+        <td>${LAITY.esc(a.teamName || '')}</td>
+        <td>${LAITY.esc(a.leader.name)}</td>
+        <td>${LAITY.esc(a.leader.dept)}</td>
+        <td>${LAITY.esc(a.leader.phone)}</td>
+        <td>${LAITY.esc(a.categoryName || '')}</td>
+        <td title="${LAITY.esc(a.summary || '')}">${LAITY.esc(a.caseName || '')}</td>
+        <td>${LAITY.esc(a.aiTools || '')}</td>
+        <td>${LAITY.esc(a.targetTask || '')}</td>
+        <td>${p ? `<a class="file-link" href="/api/admin/file/${p.id}">${LAITY.esc(p.original.slice(0, 20))}</a>`
+                : '<span class="none">미제출</span>'}</td>
+        <td>${ex.length ? ex.map((f, i) => `<a class="file-link" href="/api/admin/file/${f.id}" title="${LAITY.esc(f.original)}">${i + 1}</a>`).join(' ')
+                        : '<span class="none">-</span>'}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn btn-line btn-sm" onclick="resetPw('${a.id}','${a.no}','${LAITY.esc(a.leader.name)}')">비번재설정</button>
+          <button class="btn btn-line btn-sm" onclick="delApp('${a.id}','${a.no}')">삭제</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.resetPw = async function (id, no, name) {
+    const pw = prompt(`${no} (${name}) 님의 새 비밀번호를 입력하세요.\n숫자 4~12자리로 정한 뒤 신청자에게 알려 주세요.`);
+    if (pw === null) return;
+    const r = await fetch('/api/admin/applications/reset-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, newPassword: pw.trim() }),
+    });
+    const j = await r.json();
+    if (!j.ok) return alert(j.error);
+    alert(`${no} 의 비밀번호를 '${pw.trim()}' 로 변경했습니다.\n신청자에게 알려 주세요.`);
+  };
+
+  window.delApp = async function (id, no) {
+    if (!confirm(`${no} 신청서를 삭제할까요? 첨부파일도 함께 삭제되며 되돌릴 수 없습니다.`)) return;
+    const r = await fetch('/api/admin/applications/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+    });
+    const j = await r.json();
+    if (!j.ok) return alert(j.error);
+    loadApps();
+  };
+
+  ['search', 'filterCat', 'filterProp'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', renderApps);
+    document.getElementById(id).addEventListener('change', renderApps);
+  });
+
+  let QNAS = [];
+
+  async function loadQna() {
+    const j = await (await fetch('/api/admin/questions')).json();
+    if (!j.ok) return;
+    QNAS = j.questions;
+
+    const wait = QNAS.filter((q) => !q.answer).length;
+    document.getElementById('cntWait').textContent = wait;
+    document.getElementById('cntDone').textContent = QNAS.length - wait;
+    document.getElementById('cntAll').textContent = QNAS.length;
+
+    const badge = document.getElementById('qnaBadge');
+    if (wait > 0) { badge.textContent = wait; badge.style.display = ''; }
+    else { badge.style.display = 'none'; }
+
+    renderQna();
+  }
+
+  function renderQna() {
+    const f = (document.querySelector('input[name=qf]:checked') || {}).value || 'wait';
+    const rows = QNAS
+      .filter((q) => f === 'all' || (f === 'wait' ? !q.answer : !!q.answer))
+      .sort((x, y) => (!!x.answer - !!y.answer) || (y.seq - x.seq));
+
+    const box = document.getElementById('qnaList');
+    if (!rows.length) {
+      box.innerHTML = `<div class="panel" style="text-align:center;color:var(--ink-3);padding:44px;">
+        ${f === 'wait' ? '답변을 기다리는 질문이 없습니다. 모두 처리하셨습니다.' : '표시할 질문이 없습니다.'}</div>`;
+      return;
+    }
+
+    box.innerHTML = rows.map((q) => {
+      const answered = !!(q.answer && q.answer.body);
+      return `
+      <div class="panel" style="padding:24px 26px;${answered ? '' : 'border-color:var(--mas-orange);'}">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+          <strong style="font-size:16.5px;letter-spacing:-.02em;">${LAITY.esc(q.title)}</strong>
+          ${q.secret ? '<span class="badge lock">비밀글</span>' : ''}
+          ${answered ? '<span class="badge done">답변완료</span>' : '<span class="badge wait">답변대기</span>'}
+        </div>
+        <div style="color:var(--ink-3);font-size:13.5px;margin-bottom:12px;">
+          ${q.no} · ${LAITY.esc(q.name)}${q.dept ? ' (' + LAITY.esc(q.dept) + ')' : ''} · ${LAITY.fmtDate(q.createdAt)}
+          ${q.email ? ` · <a href="mailto:${LAITY.esc(q.email)}?subject=${encodeURIComponent('[L\'AI\'TY 경진대회] 문의하신 내용에 답변드립니다')}" style="color:var(--gu-green-d);text-decoration:underline;">${LAITY.esc(q.email)}</a>` : ''}
+        </div>
+        <div style="white-space:pre-wrap;background:var(--bg-soft);padding:15px 17px;border-radius:10px;font-size:14.5px;line-height:1.75;">${LAITY.esc(q.body)}</div>
+        <div style="margin-top:16px;">
+          <label style="display:block;font-weight:800;font-size:14px;margin-bottom:6px;color:var(--gu-deep);">답변</label>
+          <textarea id="ans_${q.id}" placeholder="답변을 입력하고 아래 '답변 저장'을 누르면 게시판에 바로 표시됩니다." style="min-height:110px;">${LAITY.esc(answered ? q.answer.body : '')}</textarea>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <span style="color:var(--ink-3);font-size:12.5px;">
+              ${answered ? '최종 답변 ' + LAITY.fmtDate(q.answer.answeredAt) : ''}
+            </span>
+            <span style="flex:1;"></span>
+            ${answered ? `<button class="btn btn-line btn-sm" onclick="delAns('${q.id}')">답변 삭제</button>` : ''}
+            <button class="btn btn-line btn-sm" onclick="delQ('${q.id}','${LAITY.esc(q.no)}')">질문 삭제</button>
+            <button class="btn btn-green btn-sm" onclick="saveAns('${q.id}')">답변 저장</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.querySelectorAll('input[name=qf]').forEach((r) => r.addEventListener('change', renderQna));
+  document.getElementById('qnaReload').onclick = () => loadQna();
+
+  const qmsg = () => document.getElementById('qmsg');
+
+  window.saveAns = async function (id) {
+    const body = document.getElementById('ans_' + id).value.trim();
+    if (!body) return LAITY.msg(qmsg(), 'err', '답변 내용을 입력해 주세요.');
+    const r = await fetch('/api/admin/questions/answer', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, body }),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(qmsg(), 'err', j.error);
+    await loadQna();
+    LAITY.msg(qmsg(), 'ok', '답변이 저장되었습니다. Q&A 게시판에서 바로 확인할 수 있습니다.');
+  };
+
+  window.delAns = async function (id) {
+    if (!confirm('이 답변을 삭제할까요? 질문은 그대로 남고 답변대기 상태로 돌아갑니다.')) return;
+    const r = await fetch('/api/admin/questions/answer', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, body: '' }),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(qmsg(), 'err', j.error);
+    await loadQna();
+    LAITY.msg(qmsg(), 'ok', '답변을 삭제했습니다.');
+  };
+
+  window.delQ = async function (id, no) {
+    if (!confirm(`${no} 질문을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+    const r = await fetch('/api/admin/questions/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(qmsg(), 'err', j.error);
+    await loadQna();
+    LAITY.msg(qmsg(), 'ok', '질문을 삭제했습니다.');
+  };
+
+})();
+</script>
+</body>
+</html>

@@ -251,6 +251,69 @@ app.post('/api/applications/lookup', (req, res) => {
   res.json({ ok: true, application: publicView(matched[0]) });
 });
 
+/** 무차별 대입 방지 — 같은 접속지에서 '실패' 10회까지, 10분 후 초기화 */
+const resetTries = new Map();
+const RESET_LIMIT = 10;
+const RESET_WINDOW = 10 * 60 * 1000;
+
+function tooManyTries(ip) {
+  const rec = resetTries.get(ip);
+  if (!rec) return false;
+  if (Date.now() - rec.at > RESET_WINDOW) { resetTries.delete(ip); return false; }
+  return rec.n >= RESET_LIMIT;
+}
+function noteFail(ip) {
+  const now = Date.now();
+  const rec = resetTries.get(ip);
+  if (!rec || now - rec.at > RESET_WINDOW) resetTries.set(ip, { n: 1, at: now });
+  else rec.n += 1;
+}
+function clearTries(ip) { resetTries.delete(ip); }
+/** 비밀번호 찾기 — 성명과 이메일 주소로 본인 확인 후 새 비밀번호 설정 */
+app.post('/api/applications/reset', async (req, res) => {
+  const b = req.body || {};
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+  if (tooManyTries(ip)) {
+    return res.status(429).json({ ok: false, error: '시도 횟수가 많습니다. 10분 후에 다시 시도하시거나 담당자에게 문의해 주세요.' });
+  }
+
+  const name = txt(b.name);
+  const email = txt(b.email).toLowerCase();
+  const newPassword = txt(b.newPassword);
+  const no = txt(b.no).toUpperCase();
+
+  if (!name || !email) {
+    return res.status(400).json({ ok: false, error: '성명과 이메일 주소를 입력해 주세요.' });
+  }
+  if (!/^\d{4,12}$/.test(newPassword)) {
+    return res.status(400).json({ ok: false, error: '새 비밀번호는 숫자 4~12자리로 입력해 주세요.' });
+  }
+
+  let matched = apps.filter((r) =>
+    r.leader.name === name &&
+    String(r.leader.email || '').trim().toLowerCase() === email);
+
+  if (no) matched = matched.filter((r) => r.no === no);
+
+  if (matched.length === 0) {
+    noteFail(ip);
+    return res.status(404).json({ ok: false, error: '입력하신 성명과 이메일 주소로 접수된 신청 내역이 없습니다. 신청 시 적으신 내용을 다시 확인해 주세요.' });
+  }
+  if (matched.length > 1) {
+    return res.status(409).json({
+      ok: false,
+      error: '해당 정보로 접수된 신청이 여러 건입니다. 접수번호를 함께 입력해 주세요.',
+      candidates: matched.map((r) => ({ no: r.no, caseName: r.caseName })),
+    });
+  }
+
+  const row = matched[0];
+  const { salt, hash } = U.hashPassword(newPassword);
+  await apps.update(row.id, { pwSalt: salt, pwHash: hash });
+  clearTries(ip);
+  res.json({ ok: true, no: row.no, caseName: row.caseName });
+});
+
 app.post('/api/applications/update', async (req, res) => {
   const b = req.body;
   const row = apps.find((r) => r.no === txt(b.no).toUpperCase());
@@ -406,6 +469,27 @@ app.post('/api/admin/questions/answer', async (req, res) => {
   if (!row) return res.status(404).json({ ok: false, error: '글을 찾을 수 없습니다.' });
   const body = txt(req.body.body);
   await qnas.update(row.id, { answer: body ? { body, answeredAt: new Date().toISOString() } : null });
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/applications/reset-password', async (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  const row = apps.find((r) => r.id === req.body.id);
+  if (!row) return res.status(404).json({ ok: false, error: '신청서를 찾을 수 없습니다.' });
+  const pw = txt(req.body.newPassword);
+  if (!/^\d{4,12}$/.test(pw)) {
+    return res.status(400).json({ ok: false, error: '새 비밀번호는 숫자 4~12자리로 입력해 주세요.' });
+  }
+  const { salt, hash } = U.hashPassword(pw);
+  await apps.update(row.id, { pwSalt: salt, pwHash: hash });
+  res.json({ ok: true, no: row.no });
+});
+
+app.post('/api/admin/questions/delete', async (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  const row = qnas.find((r) => r.id === req.body.id);
+  if (!row) return res.status(404).json({ ok: false, error: '글을 찾을 수 없습니다.' });
+  await qnas.remove(row.id);
   res.json({ ok: true });
 });
 
