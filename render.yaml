@@ -1,12 +1,30 @@
+# ============================================================
+#  Render 배포 설정
+#  기본값은 "무료(Free)" 입니다. 카드 등록 없이 바로 배포됩니다.
+#
+#  [실제 접수를 받기 전에 꼭 유료로 바꾸세요]
+#  무료 요금제는 서버가 재시작되면 신청 내용과 첨부파일이 사라집니다.
+#  아래 3곳의 주석(#)만 지우고 plan 을 starter 로 바꾸면 됩니다.
+# ============================================================
 services:
   - type: web
     name: laity-contest
     runtime: node
-    plan: free
+    plan: free                 # ← 실제 운영 시 starter 로 변경
     region: singapore
-    buildCommand: ""
+    buildCommand: ""           # 설치할 패키지가 없습니다
     startCommand: node server.js
     healthCheckPath: /healthz
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # ↓ 유료(starter)로 바꿀 때 아래 4줄의 # 을 지우세요
+      # - key: DATA_DIR
+      #   value: /var/data/db
+      # - key: UPLOAD_DIR
+      #   value: /var/data/uploads
+    # ↓ 유료(starter)로 바꿀 때 아래 4줄의 # 을 지우세요
+    # disk:
+    #   name: laity-data
+    #   mountPath: /var/data
+    #   sizeGB: 2

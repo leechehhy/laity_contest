@@ -13,6 +13,7 @@ const { App } = require('./lib/http');
 const { Table } = require('./lib/store');
 const { ZipWriter } = require('./lib/zip');
 const { buildXlsx } = require('./lib/xlsx');
+const cloud = require('./lib/cloud');
 const U = require('./lib/util');
 
 const ROOT = __dirname;
@@ -48,10 +49,16 @@ function checkFiles(files) {
   }
 }
 
-function saveFile(f) {
+const remotePath = (stored) => `uploads/${stored}`;
+
+async function saveFile(f) {
   const ext = path.extname(f.originalname).toLowerCase();
   const stored = `${Date.now()}_${crypto.randomBytes(6).toString('hex')}${ext}`;
-  fs.writeFileSync(path.join(UPLOAD_DIR, stored), f.buffer);
+  if (cloud.enabled) {
+    await cloud.put(remotePath(stored), f.buffer, f.mimetype || 'application/octet-stream');
+  } else {
+    fs.writeFileSync(path.join(UPLOAD_DIR, stored), f.buffer);
+  }
   return {
     id: U.randomId(),
     stored,
@@ -61,19 +68,34 @@ function saveFile(f) {
   };
 }
 
-function removeStored(meta) {
+async function saveFiles(list) {
+  const out = [];
+  for (const f of list) out.push(await saveFile(f));
+  return out;
+}
+
+async function removeStored(meta) {
   if (!meta || !meta.stored) return;
+  if (cloud.enabled) return cloud.del(remotePath(meta.stored));
   const p = path.join(UPLOAD_DIR, path.basename(meta.stored));
   if (fs.existsSync(p)) { try { fs.unlinkSync(p); } catch (e) { /* noop */ } }
 }
 
-function sendDownload(res, meta) {
+/** 저장된 파일의 내용을 버퍼로 읽어옵니다. 없으면 null */
+async function readStored(meta) {
+  if (!meta || !meta.stored) return null;
+  if (cloud.enabled) return cloud.get(remotePath(meta.stored));
   const p = path.join(UPLOAD_DIR, path.basename(meta.stored));
-  if (!fs.existsSync(p)) return res.status(404).send('파일이 존재하지 않습니다.');
+  return fs.existsSync(p) ? fs.readFileSync(p) : null;
+}
+
+async function sendDownload(res, meta) {
+  const buf = await readStored(meta);
+  if (!buf) return res.status(404).send('파일이 존재하지 않습니다.');
   res.setHeader('Content-Disposition', U.contentDisposition(meta.original));
   res.setHeader('Content-Type', 'application/octet-stream');
-  res.setHeader('Content-Length', fs.statSync(p).size);
-  fs.createReadStream(p).pipe(res);
+  res.setHeader('Content-Length', buf.length);
+  res.end(buf);
 }
 
 /* ---------------------------------------------------------------
@@ -135,7 +157,7 @@ function publicView(row) {
 const one = (v) => (Array.isArray(v) ? v[0] : v);
 const txt = (v) => String(one(v) == null ? '' : one(v)).trim();
 
-app.post('/api/applications', (req, res) => {
+app.post('/api/applications', async (req, res) => {
   const b = req.body;
   const required = ['teamName', 'leaderName', 'leaderDept', 'leaderPhone', 'leaderEmail',
     'category', 'caseName', 'aiTools', 'targetTask', 'summary', 'password'];
@@ -189,13 +211,13 @@ app.post('/api/applications', (req, res) => {
     agreements,
     agreePrivacy: true,
     files: {
-      proposal: proposalFiles[0] ? saveFile(proposalFiles[0]) : null,
-      extras: extraFiles.map(saveFile),
+      proposal: proposalFiles[0] ? await saveFile(proposalFiles[0]) : null,
+      extras: await saveFiles(extraFiles),
     },
     pwSalt: salt,
     pwHash: hash,
   };
-  apps.insert(row);
+  await apps.insert(row);
   res.json({ ok: true, no: row.no });
 });
 
@@ -207,7 +229,7 @@ app.post('/api/applications/lookup', (req, res) => {
   res.json({ ok: true, application: publicView(row) });
 });
 
-app.post('/api/applications/update', (req, res) => {
+app.post('/api/applications/update', async (req, res) => {
   const b = req.body;
   const row = apps.find((r) => r.no === txt(b.no).toUpperCase());
   if (!row || !U.verifyPassword(txt(b.password), row.pwSalt, row.pwHash)) {
@@ -237,23 +259,28 @@ app.post('/api/applications/update', (req, res) => {
   }
 
   const files = { proposal: row.files.proposal, extras: (row.files.extras || []).slice() };
-  if (proposalFiles[0]) { removeStored(files.proposal); files.proposal = saveFile(proposalFiles[0]); }
+  if (proposalFiles[0]) {
+    await removeStored(files.proposal);
+    files.proposal = await saveFile(proposalFiles[0]);
+  }
   if (b.removeExtras) {
     let ids = [];
     try { ids = JSON.parse(txt(b.removeExtras)); } catch (e) { ids = []; }
-    files.extras = files.extras.filter((f) => {
-      if (ids.includes(f.id)) { removeStored(f); return false; }
-      return true;
-    });
+    const keep = [];
+    for (const f of files.extras) {
+      if (ids.includes(f.id)) await removeStored(f);
+      else keep.push(f);
+    }
+    files.extras = keep;
   }
-  files.extras = files.extras.concat(extraFiles.map(saveFile));
+  files.extras = files.extras.concat(await saveFiles(extraFiles));
   patch.files = files;
 
-  apps.update(row.id, patch);
+  await apps.update(row.id, patch);
   res.json({ ok: true, application: publicView(apps.find((r) => r.id === row.id)) });
 });
 
-app.post('/api/applications/file', (req, res) => {
+app.post('/api/applications/file', async (req, res) => {
   const row = apps.find((r) => r.no === txt(req.body.no).toUpperCase());
   if (!row || !U.verifyPassword(txt(req.body.password), row.pwSalt, row.pwHash)) {
     return res.status(404).json({ ok: false, error: '인증에 실패했습니다.' });
@@ -261,7 +288,7 @@ app.post('/api/applications/file', (req, res) => {
   const all = [row.files.proposal, ...(row.files.extras || [])].filter(Boolean);
   const meta = all.find((f) => f.id === req.body.fileId);
   if (!meta) return res.status(404).json({ ok: false, error: '파일을 찾을 수 없습니다.' });
-  sendDownload(res, meta);
+  await sendDownload(res, meta);
 });
 
 /* ---------------------------------------------------------------
@@ -286,7 +313,7 @@ app.get('/api/questions', (req, res) => {
   res.json({ ok: true, questions: rows });
 });
 
-app.post('/api/questions', (req, res) => {
+app.post('/api/questions', async (req, res) => {
   const b = req.body;
   if (!txt(b.name) || !txt(b.title) || !txt(b.body) || !txt(b.password)) {
     return res.status(400).json({ ok: false, error: '이름, 제목, 내용, 비밀번호는 필수입니다.' });
@@ -306,7 +333,7 @@ app.post('/api/questions', (req, res) => {
     title: txt(b.title), body: txt(b.body),
     answer: null, pwSalt: salt, pwHash: hash,
   };
-  qnas.insert(row);
+  await qnas.insert(row);
   res.json({ ok: true, no: row.no });
 });
 
@@ -348,26 +375,26 @@ app.get('/api/admin/questions', (req, res) => {
   res.json({ ok: true, questions: qnas.all().sort((a, b) => b.seq - a.seq).map(publicView) });
 });
 
-app.post('/api/admin/questions/answer', (req, res) => {
+app.post('/api/admin/questions/answer', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
   const row = qnas.find((r) => r.id === req.body.id);
   if (!row) return res.status(404).json({ ok: false, error: '글을 찾을 수 없습니다.' });
   const body = txt(req.body.body);
-  qnas.update(row.id, { answer: body ? { body, answeredAt: new Date().toISOString() } : null });
+  await qnas.update(row.id, { answer: body ? { body, answeredAt: new Date().toISOString() } : null });
   res.json({ ok: true });
 });
 
-app.post('/api/admin/applications/delete', (req, res) => {
+app.post('/api/admin/applications/delete', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
   const row = apps.find((r) => r.id === req.body.id);
   if (!row) return res.status(404).json({ ok: false, error: '신청서를 찾을 수 없습니다.' });
-  removeStored(row.files && row.files.proposal);
-  ((row.files && row.files.extras) || []).forEach(removeStored);
-  apps.remove(row.id);
+  await removeStored(row.files && row.files.proposal);
+  for (const f of ((row.files && row.files.extras) || [])) await removeStored(f);
+  await apps.remove(row.id);
   res.json({ ok: true });
 });
 
-app.get('/api/admin/file/:fileId', (req, res) => {
+app.get('/api/admin/file/:fileId', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
   for (const row of apps.all()) {
     const all = [row.files && row.files.proposal, ...((row.files && row.files.extras) || [])].filter(Boolean);
@@ -377,7 +404,7 @@ app.get('/api/admin/file/:fileId', (req, res) => {
   res.status(404).send('파일을 찾을 수 없습니다.');
 });
 
-app.get('/api/admin/files.zip', (req, res) => {
+app.get('/api/admin/files.zip', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', U.contentDisposition(`LAITY_첨부파일_${U.todayISO()}.zip`));
@@ -388,8 +415,8 @@ app.get('/api/admin/files.zip', (req, res) => {
     if (row.files && row.files.proposal) list.push(['제안서_' + row.files.proposal.original, row.files.proposal]);
     ((row.files && row.files.extras) || []).forEach((f, i) => list.push([`증빙${i + 1}_` + f.original, f]));
     for (const [name, meta] of list) {
-      const p = path.join(UPLOAD_DIR, path.basename(meta.stored));
-      if (fs.existsSync(p)) zip.addFile(`${folder}/${U.safeName(name)}`, p);
+      const buf = await readStored(meta);
+      if (buf) zip.addBuffer(`${folder}/${U.safeName(name)}`, buf);
     }
   }
   zip.finish();
@@ -456,7 +483,26 @@ app.notFound = (req, res) => {
  * 서버 시작
  * ------------------------------------------------------------- */
 const PORT = Number(process.env.PORT || CONFIG.port || 3000);
-const HOST = process.env.HOST || '0.0.0.0';
+async function boot() {
+  if (cloud.enabled) {
+    try {
+      const info = await cloud.check();
+      console.log(`  [storage] Supabase 연결 OK  (bucket: ${info.bucket})`);
+    } catch (e) {
+      console.error('  [storage] Supabase 연결 실패:', e.message);
+      console.error('  SUPABASE_URL / SUPABASE_KEY / SUPABASE_BUCKET 설정을 확인해 주세요.');
+      process.exit(1);
+    }
+  } else {
+    console.log('  [storage] 이 컴퓨터의 data/ · uploads/ 폴더에 저장합니다.');
+  }
+  await apps.load();
+  await qnas.load();
+  console.log(`  [storage] 신청 ${apps.all().length}건 · 질문 ${qnas.all().length}건 불러옴`);
+  start();
+}
+
+function start() {
 const server = app.listen(PORT, () => {
   console.log('');
   console.log("  L'AI'TY Contest server is running.");
@@ -478,3 +524,6 @@ server.on('error', (e) => {
   }
   process.exit(1);
 });
+}
+
+boot().catch((e) => { console.error(e); process.exit(1); });
