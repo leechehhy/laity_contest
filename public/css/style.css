@@ -283,11 +283,11 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
 .award {
   border: 1.5px solid var(--line); border-radius: var(--radius); padding: 28px 22px; text-align: center; background: #fff;
 }
-.award.top { border-color: var(--mas-yellow); border-width: 2.5px; background: linear-gradient(180deg, #fffaeb, #fff); }
+
 .award .rank { font-size: 15px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.02em; }
 .award .rank small { display: block; font-size: 13px; font-weight: 700; color: var(--ink-3); margin-top: 2px; }
 .award .prize { font-size: 28px; font-weight: 800; letter-spacing: -.04em; margin: 6px 0 4px; color: var(--gu-deep); }
-.award.top .prize { color: var(--mas-orange-d); }
+.award.gold .prize { color: #b8860b; }
 .award .extra { font-size: 14px; color: var(--ink-2); }
 
 /* ---------- CTA ---------- */
@@ -587,3 +587,36 @@ table.adm .none { color: var(--ink-3); }
   .stage { flex-direction: column; }
   .stage-arrow { transform: rotate(90deg); align-self: center; }
 }
+
+/* ---------- 양식 내려받기 버튼 ---------- */
+.dl-btn {
+  display: flex; align-items: center; gap: 14px;
+  margin: 4px 0 16px; padding: 16px 20px;
+  border: 2px solid var(--gu-green); border-radius: 14px;
+  background: var(--gu-green-xl); transition: .16s;
+}
+.dl-btn:hover {
+  background: #fff; border-color: var(--gu-deep);
+  transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 81, 42, .14);
+}
+.dl-btn .ico {
+  flex: none; width: 40px; height: 40px; border-radius: 11px;
+  background: var(--gu-deep); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800;
+}
+.dl-btn .txt { font-size: 16px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.02em; line-height: 1.3; }
+.dl-btn .txt small { display: block; font-size: 13px; font-weight: 600; color: var(--ink-3); margin-top: 3px; letter-spacing: 0; }
+
+/* ---------- 시상 트로피 ---------- */
+.award .trophy {
+  width: 62px; height: 62px; margin: 0 auto 12px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  background: linear-gradient(160deg, #f2f4f5, #dfe3e6);
+  box-shadow: inset 0 -3px 6px rgba(0,0,0,.06);
+}
+.award.gold   .trophy { background: linear-gradient(160deg, #ffe9a8, #f0b429); }
+.award.silver .trophy { background: linear-gradient(160deg, #f4f6f8, #c3cbd3); }
+.award.bronze .trophy { background: linear-gradient(160deg, #f3d5b5, #cd8b4e); }
+.award.gold   { border-color: #f0b429; border-width: 2.5px; background: linear-gradient(180deg, #fffbf0, #fff); }
+.award.silver { border-color: #c3cbd3; }
+.award.bronze { border-color: #d9a877; }

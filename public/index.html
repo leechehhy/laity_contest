@@ -190,8 +190,10 @@
     </div>`;
   }).join('');
 
+  const MEDAL = ['gold', 'silver', 'bronze'];
   document.getElementById('awards').innerHTML = c.awards.map((a, i) => `
-    <div class="award ${i === 0 ? 'top' : ''}">
+    <div class="award ${MEDAL[i] || ''}">
+      <div class="trophy">🏆</div>
       <div class="rank">${a.rank}<small>${a.count}</small></div>
       <div class="prize">${a.prize}</div>
       <div class="extra">${a.extra}</div>
