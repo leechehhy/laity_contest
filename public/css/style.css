@@ -192,7 +192,10 @@ img { max-width: 100%; display: block; }
 
 /* ---------- 카드 ---------- */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 16px; }
-@media (min-width: 1000px) { .cards-5 { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 1000px) {
+  .cards-5 { grid-template-columns: repeat(5, 1fr); }
+  .cards-4 { grid-template-columns: repeat(4, 1fr); }
+}
 .card {
   background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius);
   padding: 26px 22px; transition: .18s; position: relative; overflow: hidden;
@@ -228,18 +231,40 @@ table.info th, table.info td { padding: 16px 20px; text-align: left; border-bott
 table.info tr:last-child th, table.info tr:last-child td { border-bottom: 0; }
 table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; color: var(--gu-deep); }
 
-/* ---------- 타임라인 ---------- */
-.timeline { display: grid; gap: 0; }
-.tl-item {
-  display: grid; grid-template-columns: 56px 1fr auto; gap: 18px; align-items: center;
-  padding: 18px 22px; border: 1.5px solid var(--line); border-bottom: 0; background: #fff;
+/* ---------- 추진 일정 (가로 카드) ---------- */
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.step-card {
+  position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius);
+  padding: 22px 18px 20px; text-align: center; box-shadow: var(--shadow-sm);
 }
-.tl-item:first-child { border-radius: var(--radius) var(--radius) 0 0; }
-.tl-item:last-child { border-bottom: 1.5px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); }
-.tl-item.now { background: linear-gradient(90deg, var(--gu-green-xl), #fff); border-left: 4px solid var(--gu-green); }
-.tl-step { font-size: 20px; font-weight: 800; color: var(--gu-green-d); text-align: center; }
-.tl-name { font-weight: 800; letter-spacing: -.02em; color: var(--gu-deep); }
-.tl-date { color: var(--ink-2); font-size: 15px; font-variant-numeric: tabular-nums; }
+.step-card.now { border-color: var(--gu-green); background: var(--gu-green-xl); }
+.step-no {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; margin-bottom: 12px;
+  background: var(--gu-deep); color: #fff; font-size: 15px; font-weight: 800;
+}
+.step-card.now .step-no { background: var(--gu-green-d); }
+.step-name {
+  font-weight: 800; font-size: 15.5px; letter-spacing: -.03em; color: var(--gu-deep);
+  line-height: 1.4; min-height: 44px; display: flex; align-items: center; justify-content: center;
+}
+.step-date {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);
+  color: var(--ink-2); font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.step-badge {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  background: var(--mas-orange); color: #fff; font-size: 11.5px; font-weight: 800;
+  padding: 3px 12px; border-radius: 999px; white-space: nowrap;
+}
+
+/* 심사 안내 문구 */
+.judge-note {
+  margin: 34px 0 0; padding: 22px 26px; border-radius: var(--radius);
+  background: var(--gu-green-xl); border: 1px solid rgba(0, 81, 42, .1);
+  color: var(--ink-2); font-size: 16px; line-height: 1.75;
+}
+.judge-note strong { color: var(--gu-deep); }
 
 /* ---------- 심사기준 ---------- */
 .crit { display: grid; gap: 14px; }
@@ -509,8 +534,7 @@ table.adm .none { color: var(--ink-3); }
   .crit-row { grid-template-columns: 1fr; gap: 6px; }
   .crit-score { text-align: left; }
   .member-row { grid-template-columns: 1fr 1fr; }
-  .tl-item { grid-template-columns: 40px 1fr; }
-  .tl-date { grid-column: 2; }
+  .steps { grid-template-columns: 1fr 1fr; }
   .nav {
     position: absolute; top: 74px; left: 0; right: 0; background: #fff; flex-direction: column;
     align-items: stretch; padding: 10px; border-bottom: 1px solid var(--line); display: none;
@@ -518,6 +542,7 @@ table.adm .none { color: var(--ink-3); }
   .nav.open { display: flex; }
   .nav-toggle { display: block; }
   .brand .txt small { display: none; }
+  .steps { grid-template-columns: 1fr; }
   .panel { padding: 22px 18px 26px; }
   .section { padding: 58px 0; }
 }

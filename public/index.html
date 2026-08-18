@@ -38,7 +38,7 @@
 <section class="section" id="guide">
   <div class="wrap">
     <div class="section-head">
-      <h2>응모 대상</h2>
+      <h2>L‘AI’TY 경진대회</h2>
       <p>이 대회는 <strong>“어떤 프롬프트를 썼는가”</strong>가 아니라
          <strong>“AI를 업무에 어떻게 활용해서 무엇이 나아졌는가”</strong>를 봅니다.</p>
     </div>
@@ -56,7 +56,7 @@
       <img src="/img/mascot-guide.png" alt="">
     </div>
 
-    <div class="cards cards-5" style="margin-top:30px;" id="cats"></div>
+    <div class="cards cards-4" style="margin-top:22px;" id="cats"></div>
   </div>
 </section>
 
@@ -73,7 +73,7 @@
     <div class="section-head" style="margin-top:54px;">
       <h2>추진 일정</h2>
     </div>
-    <div class="timeline" id="timeline"></div>
+    <div class="steps" id="timeline"></div>
     <p style="color:var(--ink-3);font-size:14px;margin-top:12px;">※ 상기 일정은 변동될 수 있습니다.</p>
   </div>
 </section>
@@ -101,23 +101,11 @@
       </div>
     </div>
 
-    <div class="cards" style="margin-top:42px;">
-      <div class="card">
-        <div class="num">✓</div>
-        <h3>이렇게 평가합니다</h3>
-        <p>규모가 작아도 실제로 매일 쓰이는 서비스를 높게 평가합니다. 반대로 정교하게 만들었어도 아직 아무도 쓰지 않는 시제품은 낮게 평가합니다.</p>
-      </div>
-      <div class="card">
-        <div class="num">✕</div>
-        <h3>이런 건 보지 않습니다</h3>
-        <p>어떤 프롬프트를 썼는지, 어떤 도구가 최신인지, 코딩 실력이 어느 정도인지는 평가하지 않습니다. 비전공 직원과 전산 담당자를 기술 난이도로 비교하지 않습니다.</p>
-      </div>
-      <div class="card">
-        <div class="num">＝</div>
-        <h3>시연은 선택입니다</h3>
-        <p>서비스가 실제로 동작한다는 것은 현장 시연·녹화 영상·화면 캡처·산출물 어느 형태로 보여 주셔도 똑같이 인정합니다. 시연을 못 한다고 불리하지 않습니다.</p>
-      </div>
-    </div>
+    <p class="judge-note">
+      규모가 작아도 <strong>실제로 매일 쓰이는 서비스</strong>를 높게 평가합니다.
+      반대로 정교하게 만들었어도 아직 아무도 쓰지 않는 시제품은 낮게 평가합니다.
+    </p>
+
   </div>
 </section>
 
@@ -142,8 +130,9 @@
 
     <div class="cta">
       <div>
-        <h2>만들어 둔 것이 있다면, 지금 알려 주세요</h2>
-        <p>신청서 작성과 보고서 첨부를 한 번에 끝내실 수 있습니다.</p>
+        <h2>행정 혁신을 위한<br>나만의 서비스를 공유해 주세요</h2>
+        <p>내 자리에서 시작된 작은 개선이 우리 대학의 일하는 방식을 바꿉니다.
+           신청서 작성과 보고서 첨부, 한 번에 끝내실 수 있습니다.</p>
         <a class="btn btn-primary btn-lg" href="/apply">참가 신청하기 →</a>
       </div>
       <img src="/img/mascot-cheer.png" alt="">
@@ -176,16 +165,17 @@
     <tr><th>대회 주제</th><td>${c.contest.subject}</td></tr>
     <tr><th>참가 대상</th><td>${c.contest.target}</td></tr>
     <tr><th>사용 도구</th><td>${c.contest.tools} — 도구 종류에는 제한이 없습니다</td></tr>
-    <tr><th>제출물</th><td>AI 활용사례 보고서 [붙임 2] · 동작 증빙자료 (온라인 신청 시 함께 첨부)</td></tr>
+    <tr><th>제출물</th><td>AI 활용사례 보고서(필수) · 동작 증빙자료(선택) — 온라인 신청 시 함께 첨부</td></tr>
     <tr><th>운영 일정</th><td>2026. 8월 ~ 9월</td></tr>`;
 
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('timeline').innerHTML = s.steps.map((x) => {
-    const now = (today >= s.applyOpen && today <= s.applyClose && x.name.includes('참가 신청'));
-    return `<div class="tl-item ${now ? 'now' : ''}">
-      <div class="tl-step">${x.step}</div>
-      <div class="tl-name">${x.name}${now ? ' <span class="badge done">접수중</span>' : ''}</div>
-      <div class="tl-date">${x.date}</div>
+    const now = (today >= s.applyOpen && today <= s.applyClose && x.name.includes('접수'));
+    return `<div class="step-card ${now ? 'now' : ''}">
+      <div class="step-no">${x.step}</div>
+      <div class="step-name">${x.name}</div>
+      <div class="step-date">${x.date}</div>
+      ${now ? '<span class="step-badge">접수중</span>' : ''}
     </div>`;
   }).join('');
 

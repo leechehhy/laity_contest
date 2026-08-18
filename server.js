@@ -593,7 +593,7 @@ app.get('/api/admin/files.zip', async (req, res) => {
   for (const row of apps.all().sort((a, b) => a.seq - b.seq)) {
     const folder = U.safeName(`${row.no}_${row.leader.name}_${row.caseName}`);
     const list = [];
-    if (row.files && row.files.proposal) list.push(['제안서_' + row.files.proposal.original, row.files.proposal]);
+    if (row.files && row.files.proposal) list.push(['보고서_' + row.files.proposal.original, row.files.proposal]);
     ((row.files && row.files.extras) || []).forEach((f, i) => list.push([`증빙${i + 1}_` + f.original, f]));
     for (const [name, meta] of list) {
       const buf = await readStored(meta);
@@ -610,7 +610,7 @@ app.get('/api/admin/applications.xlsx', (req, res) => {
     ['접수번호', 16], ['접수일시', 18], ['참가구분', 10], ['팀명', 18], ['대표자', 10],
     ['소속(부서)', 20], ['연락처', 16], ['이메일', 26], ['팀원', 30],
     ['응모분야', 20], ['사례명', 30], ['활용 AI 도구', 26], ['적용 업무', 24],
-    ['사례 요약', 60], ['제안서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40], ['최종수정', 18],
+    ['사례 요약', 60], ['보고서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40], ['최종수정', 18],
   ].map(([header, width]) => ({ header, width }));
 
   const rows = apps.all().sort((a, b) => a.seq - b.seq).map((r) => [

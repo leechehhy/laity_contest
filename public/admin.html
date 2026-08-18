@@ -60,9 +60,9 @@
           <input type="text" id="search" placeholder="이름·부서·서비스명 검색" style="width:260px;">
           <select id="filterCat" style="width:180px;"><option value="">전체 분야</option></select>
           <select id="filterProp" style="width:180px;">
-            <option value="">제안서 전체</option>
-            <option value="y">제안서 제출</option>
-            <option value="n">제안서 미제출</option>
+            <option value="">보고서 전체</option>
+            <option value="y">보고서 제출</option>
+            <option value="n">보고서 미제출</option>
           </select>
           <span class="spacer"></span>
           <a class="btn btn-green btn-sm" href="/api/admin/applications.xlsx">📊 엑셀 다운로드</a>
@@ -75,7 +75,7 @@
               <tr>
                 <th>접수번호</th><th>접수일</th><th>구분</th><th>팀명</th><th>대표자</th><th>소속</th>
                 <th>연락처</th><th>분야</th><th>사례명</th><th>활용 AI 도구</th>
-                <th>적용 업무</th><th>제안서</th><th>증빙</th><th>관리</th>
+                <th>적용 업무</th><th>보고서</th><th>증빙</th><th>관리</th>
               </tr>
             </thead>
             <tbody id="appRows"></tbody>
@@ -221,7 +221,7 @@
     document.getElementById('stats').innerHTML = `
       <div class="stat"><div class="k">총 접수</div><div class="v">${total}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> 건</span></div></div>
       <div class="stat"><div class="k">개인 / 팀</div><div class="v">${total - teams} / ${teams}</div></div>
-      <div class="stat"><div class="k">제안서 제출</div><div class="v">${withProp}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>
+      <div class="stat"><div class="k">보고서 제출</div><div class="v">${withProp}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>
       <div class="stat"><div class="k">증빙자료 제출</div><div class="v">${withExtra}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>`;
 
     renderApps();
