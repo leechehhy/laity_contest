@@ -37,7 +37,7 @@
       <div class="notice-box" style="margin-bottom:20px;">
         <strong>신청 전에 확인해 주세요</strong>
         <ul>
-          <li><strong>AI 활용사례 보고서</strong>는 양식을 내려받아 작성한 뒤 아래 ③번에서 첨부해 주세요.
+          <li><strong>AI 활용 사례 보고서</strong>는 양식을 내려받아 작성한 뒤 아래 ③번에서 첨부해 주세요.
               접수 기간(<strong id="propPeriod2"></strong>) 안에는 ‘접수 확인’ 메뉴에서 다시 올려 교체하실 수 있습니다.</li>
           <li>마지막에 설정하는 <strong>수정용 비밀번호</strong>로 나중에 내용을 고치거나 파일을 다시 올릴 수 있습니다.</li>
         </ul>
@@ -54,7 +54,7 @@
             <span class="lb">참가 구분<span class="req">*</span></span>
             <div class="choices">
               <label class="choice"><input type="radio" name="entryType" value="individual" checked><span class="dot"></span>개인</label>
-              <label class="choice"><input type="radio" name="entryType" value="team"><span class="dot"></span>팀 (3인 이내)</label>
+              <label class="choice"><input type="radio" name="entryType" value="team"><span class="dot"></span>팀 (2인 이내)</label>
             </div>
           </div>
 
@@ -86,15 +86,11 @@
           </div>
 
           <div class="field" id="memberField" style="display:none;">
-            <span class="lb">팀원 (최대 2명)</span>
-            <p class="desc">성명과 소속(부서)을 입력해 주세요.</p>
-            <div class="grid-2" style="margin-bottom:10px;">
-              <input type="text" id="m1name" placeholder="팀원 1 성명">
-              <input type="text" id="m1dept" placeholder="팀원 1 소속(부서)">
-            </div>
+            <span class="lb">팀원 (1명)</span>
+            <p class="desc">대표자를 포함해 2인까지 참가하실 수 있습니다. 팀원의 성명과 소속(부서)을 입력해 주세요.</p>
             <div class="grid-2">
-              <input type="text" id="m2name" placeholder="팀원 2 성명">
-              <input type="text" id="m2dept" placeholder="팀원 2 소속(부서)">
+              <input type="text" id="m1name" placeholder="팀원 성명">
+              <input type="text" id="m1dept" placeholder="팀원 소속(부서)">
             </div>
           </div>
         </div>
@@ -143,7 +139,7 @@
           <p class="hint">양식을 내려받아 작성한 뒤 첨부해 주세요. 보고서를 첨부하셔야 신청이 완료됩니다.</p>
 
           <div class="field">
-            <span class="lb">AI 활용사례 보고서<span class="req">*</span></span>
+            <span class="lb">AI 활용 사례 보고서<span class="req">*</span></span>
             <p class="desc">
               <a id="propFormLink" href="#" style="color:var(--gu-green-d);font-weight:700;text-decoration:underline;">보고서 양식 내려받기</a>
               · 제출 기간 <span id="propPeriod"></span>
@@ -181,7 +177,7 @@
             <div class="check-line"><input type="checkbox" id="ag2"><label for="ag2">제출 자료에 개인정보 등 민감정보가 포함되어 있지 않음을 확인합니다.</label></div>
             <div class="check-line"><input type="checkbox" id="ag3"><label for="ag3">사례 수행 과정에서 교내 정보보안 지침 및 AI 이용 수칙을 준수하였음을 확인합니다.</label></div>
             <div class="check-line"><input type="checkbox" id="ag4"><label for="ag4">수상 시 본 사례가 교내 공유·확산 자료로 활용되는 것에 동의합니다.</label></div>
-            <div class="check-line"><input type="checkbox" id="ag5"><label for="ag5">신청서 및 보고서 기재 내용이 사실과 다를 경우 심사 제외·수상 취소될 수 있음을 확인합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag5"><label for="ag5">신청서 및 보고서 기재 내용이 사실과 다를 경우 평가 제외·수상 취소될 수 있음을 확인합니다.</label></div>
             <div style="text-align:right;margin-top:6px;">
               <button type="button" class="btn btn-line btn-sm" id="checkAll">전체 선택</button>
             </div>
@@ -357,7 +353,6 @@
 
     const members = [
       { name: val('m1name'), dept: val('m1dept') },
-      { name: val('m2name'), dept: val('m2dept') },
     ].filter((m) => m.name);
     fd.append('members', JSON.stringify(members));
 

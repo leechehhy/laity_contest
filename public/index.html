@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>제1회 광주대학교 L'AI'TY 경진대회</title>
-<meta name="description" content="대학 행정의 새로운 빛을 밝히다 — 나(우리)는 AI로 이런 서비스를 만들었다">
+<meta name="description" content="AI, 대학 행정의 새로운 ‘빛’이 되다 — 나(우리)는 AI를 업무에 이렇게 활용했다">
 <link rel="icon" href="/img/emblem-green.png">
 <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -15,9 +15,9 @@
   <span class="glow"></span>
   <div class="wrap">
     <div>
-      <h1>대학 행정의<br><span class="accent">새로운 빛</span>을 밝히다</h1>
+      <h1>AI, 대학 행정의<br><span class="accent">새로운 ‘빛’</span>이 되다</h1>
       <p class="lead">
-        AI로 만든 나의 업무 서비스를 소개해 주세요.
+        AI로 업무를 바꿔 본 경험을 들려주세요.
         매주 반복하던 일을 대신해 주는 도구, 쌓인 자료를 빠르고 정확하게 요약·분석하는 방법 —
         업무를 한결 가볍게 만든 경험이라면 무엇이든 좋습니다.
       </p>
@@ -51,7 +51,7 @@
           Claude로 <strong>메일함의 주간보고를 자동으로 취합해 회의자료 초안을 만들어 주는 서비스</strong>를 만들었고,
           지금은 3시간 걸리던 일이 15분이면 끝납니다.”
         </p>
-        <p class="note">↑ 이렇게 <strong>실제로 동작하고, 실제로 쓰이고 있는 서비스</strong>가 출품 대상입니다.</p>
+        <p class="note">↑ 이렇게 <strong>실제 업무에 적용해 보고, 지금도 쓰고 있는 사례</strong>가 응모 대상입니다.</p>
       </div>
       <img src="/img/mascot-guide.png" alt="">
     </div>
@@ -78,31 +78,31 @@
   </div>
 </section>
 
-<!-- 심사 -->
+<!-- 평가 -->
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>심사</h2>
-      <p>제출해 주신 활용사례 보고서를 바탕으로 <strong>1차 서면심사</strong>를 거쳐,
-         통과한 사례를 대상으로 <strong>2차 발표심사</strong>를 진행하는 2단계 방식입니다.</p>
+      <h2>평가</h2>
+      <p>제출해 주신 AI 활용 사례 보고서를 바탕으로 <strong>1차 서면평가</strong>를 거쳐,
+         통과한 사례를 대상으로 <strong>2차 발표평가</strong>를 진행하는 2단계 방식입니다.</p>
     </div>
 
     <div class="stage">
       <div class="stage-item">
         <div class="stage-no">1차</div>
-        <h3>서면심사</h3>
-        <p>제출하신 <strong>AI 활용사례 보고서</strong>만으로 심사합니다.</p>
+        <h3>서면평가</h3>
+        <p>제출하신 <strong>AI 활용 사례 보고서</strong>만으로 평가하며, 시상 규모의 <strong>2배수 내외</strong>를 선정합니다.</p>
       </div>
       <div class="stage-arrow">→</div>
       <div class="stage-item">
         <div class="stage-no">2차</div>
-        <h3>발표심사</h3>
-        <p>1차를 통과한 사례를 대상으로 <strong>현장 발표와 질의응답</strong>을 통해 심사합니다.</p>
+        <h3>발표평가</h3>
+        <p><strong>발표·질의응답과 시연</strong>으로 평가합니다. 시연은 <strong>사전 녹화 영상으로 대체</strong>하실 수 있습니다.</p>
       </div>
     </div>
 
     <p class="judge-note">
-      규모가 작아도 <strong>실제로 매일 쓰이는 서비스</strong>를 높게 평가합니다.
+      규모가 작아도 <strong>실제로 업무에서 쓰이고 있는 사례</strong>를 높게 평가합니다.
       반대로 정교하게 만들었어도 아직 아무도 쓰지 않는 시제품은 낮게 평가합니다.
     </p>
 
@@ -114,7 +114,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>시상</h2>
-      <p>총 상금 200만 원 · 10팀에게 수여합니다. 전 수상팀 총장 표창.</p>
+      <p>총 상금 160만 원 · 8팀에게 수여합니다. 전 수상팀 총장 표창.</p>
     </div>
     <div class="awards" id="awards"></div>
   </div>
@@ -150,8 +150,8 @@
 
   document.getElementById('heroMeta').innerHTML = `
     <div><dt>접수 기간</dt><dd>${s.applyOpen.slice(5).replace('-', '.')} ~ ${s.applyClose.slice(5).replace('-', '.')}<span class="dday">${LAITY.dday(s.applyClose)}</span></dd></div>
-    <div><dt>참가 대상</dt><dd>교직원 개인 또는 3인 이내 팀</dd></div>
-    <div><dt>시상 규모</dt><dd>총 200만 원<span class="dday">10팀</span></dd></div>`;
+    <div><dt>참가 대상</dt><dd>행정직원 개인 또는 2인 이내 팀</dd></div>
+    <div><dt>시상 규모</dt><dd>총 160만 원<span class="dday">8팀</span></dd></div>`;
 
   document.getElementById('cats').innerHTML = c.categories.map((x, i) => `
     <div class="card">
@@ -165,7 +165,7 @@
     <tr><th>대회 주제</th><td>${c.contest.subject}</td></tr>
     <tr><th>참가 대상</th><td>${c.contest.target}</td></tr>
     <tr><th>사용 도구</th><td>${c.contest.tools} — 도구 종류에는 제한이 없습니다</td></tr>
-    <tr><th>제출물</th><td>AI 활용사례 보고서(필수) · 동작 증빙자료(선택) — 온라인 신청 시 함께 첨부</td></tr>
+    <tr><th>제출물</th><td>AI 활용 사례 보고서(필수) · 동작 증빙자료(선택) — 온라인 신청 시 함께 첨부</td></tr>
     <tr><th>운영 일정</th><td>2026. 8월 ~ 9월</td></tr>`;
 
   // 기간은 "시작일 ~" / "종료일" 두 줄로 끊어 표시합니다.

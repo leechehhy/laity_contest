@@ -260,7 +260,7 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
   padding: 3px 12px; border-radius: 999px; white-space: nowrap;
 }
 
-/* 심사 안내 문구 */
+/* 평가 안내 문구 */
 .judge-note {
   margin: 34px 0 0; padding: 22px 26px; border-radius: var(--radius);
   background: var(--gu-green-xl); border: 1px solid rgba(0, 81, 42, .1);
@@ -268,7 +268,7 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
 }
 .judge-note strong { color: var(--gu-deep); }
 
-/* ---------- 심사기준 ---------- */
+/* ---------- 평가기준 ---------- */
 .crit { display: grid; gap: 14px; }
 .crit-row { display: grid; grid-template-columns: 220px 1fr 60px; gap: 18px; align-items: center; }
 .crit-name { font-weight: 800; font-size: 15.5px; letter-spacing: -.02em; color: var(--gu-deep); }
@@ -279,8 +279,7 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
 .crit-score { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gu-deep); }
 
 /* ---------- 시상 ---------- */
-.awards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-@media (max-width: 860px) { .awards { grid-template-columns: 1fr 1fr; } }
+.awards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
 .award {
   border: 1.5px solid var(--line); border-radius: var(--radius); padding: 28px 22px; text-align: center; background: #fff;
 }
@@ -569,7 +568,7 @@ table.adm .none { color: var(--ink-3); }
 .gate-note { font-size: 13px; color: var(--ink-3); margin: 12px 0 0; line-height: 1.55; }
 @media (max-width: 720px) { .gate-grid { grid-template-columns: 1fr; } }
 
-/* ---------- 심사 2단계 ---------- */
+/* ---------- 평가 2단계 ---------- */
 .stage { display: flex; align-items: stretch; gap: 18px; }
 .stage-item {
   flex: 1; background: #fff; border: 1px solid var(--line); border-radius: var(--radius);

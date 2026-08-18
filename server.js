@@ -221,14 +221,14 @@ app.post('/api/applications', async (req, res) => {
   const proposalFiles = req.files.proposal || [];
   const extraFiles = req.files.extras || [];
   if (!proposalFiles[0]) {
-    return res.status(400).json({ ok: false, error: 'AI 활용사례 보고서 파일을 첨부해 주세요.' });
+    return res.status(400).json({ ok: false, error: 'AI 활용 사례 보고서 파일을 첨부해 주세요.' });
   }
   try { checkFiles([...proposalFiles, ...extraFiles]); }
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
 
   let members = [];
   try { members = JSON.parse(txt(b.members) || '[]'); } catch (e) { members = []; }
-  members = members.filter((m) => m && m.name && String(m.name).trim()).slice(0, 2);
+  members = members.filter((m) => m && m.name && String(m.name).trim()).slice(0, 1);
 
   const seq = apps.nextSeq();
   const { salt, hash } = U.hashPassword(txt(b.password));
