@@ -79,9 +79,6 @@
       </table>
     </div>
 
-    <p style="color:var(--ink-3);font-size:14px;margin-top:16px;">
-      ※ 급한 문의는 <span id="contactLine"></span>로 연락해 주세요.
-    </p>
   </div>
 </div>
 
@@ -105,9 +102,6 @@
 (async function () {
   const c = await LAITY.mount('/qna');
   const msg = document.getElementById('msg');
-
-  document.getElementById('contactLine').textContent =
-    `${c.contact.dept} ${c.contact.tel} / ${c.contact.email}`;
 
   document.getElementById('faq').innerHTML = c.faq.map((f) => `
     <details>

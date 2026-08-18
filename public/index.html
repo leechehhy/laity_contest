@@ -91,7 +91,7 @@
       <div class="stage-item">
         <div class="stage-no">1차</div>
         <h3>서면심사</h3>
-        <p>제출하신 <strong>AI 활용사례 보고서</strong>만으로 심사합니다. 참가자가 직접 나오실 필요는 없습니다.</p>
+        <p>제출하신 <strong>AI 활용사례 보고서</strong>만으로 심사합니다.</p>
       </div>
       <div class="stage-arrow">→</div>
       <div class="stage-item">
@@ -114,7 +114,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>시상</h2>
-      <p>1등 1팀 100만 원(총장 표창)이 확정되었으며, 2등·3등 시상 규모는 내부 심의를 거쳐 추후 공지합니다.</p>
+      <p>총 상금 200만 원 · 10팀에게 수여합니다. 전 수상팀 총장 표창.</p>
     </div>
     <div class="awards" id="awards"></div>
   </div>
@@ -151,7 +151,7 @@
   document.getElementById('heroMeta').innerHTML = `
     <div><dt>접수 기간</dt><dd>${s.applyOpen.slice(5).replace('-', '.')} ~ ${s.applyClose.slice(5).replace('-', '.')}<span class="dday">${LAITY.dday(s.applyClose)}</span></dd></div>
     <div><dt>참가 대상</dt><dd>교직원 개인 또는 3인 이내 팀</dd></div>
-    <div><dt>시상 규모</dt><dd>1등 100만 원<span class="dday">2·3등 미정</span></dd></div>`;
+    <div><dt>시상 규모</dt><dd>총 200만 원<span class="dday">10팀</span></dd></div>`;
 
   document.getElementById('cats').innerHTML = c.categories.map((x, i) => `
     <div class="card">
@@ -192,7 +192,7 @@
 
   document.getElementById('awards').innerHTML = c.awards.map((a, i) => `
     <div class="award ${i === 0 ? 'top' : ''}">
-      <div class="rank">${a.rank} · ${a.count}</div>
+      <div class="rank">${a.rank}<small>${a.count}</small></div>
       <div class="prize">${a.prize}</div>
       <div class="extra">${a.extra}</div>
     </div>`).join('');

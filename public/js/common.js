@@ -39,7 +39,6 @@
     },
 
     footer(c) {
-      const k = c.contact || {};
       return `
 <footer class="site-footer">
   <div class="wrap">
@@ -50,26 +49,12 @@
         <p>주제 · ${c.contest.subject}</p>
       </div>
       <div>
-        <h4>문의</h4>
-        <p>${k.dept || ''} ${k.person || ''}</p>
-        <p>${k.tel || ''}</p>
-        <p><a href="mailto:${k.email || ''}">${k.email || ''}</a></p>
-        <p>${k.hours || ''}</p>
-      </div>
-      <div>
-        <h4>바로가기</h4>
-        <p><a href="/apply">참가 신청하기</a></p>
-        <p><a href="/check">접수 확인 · 수정</a></p>
-        <p><a href="/qna">자주 묻는 질문</a></p>
-        <p><a href="/admin">관리자</a></p>
-      </div>
-      <div>
         <img class="emblem" src="/img/emblem-beige.png" alt="광주대학교 엠블럼">
       </div>
     </div>
     <div class="bottom">
       <span>© ${new Date().getFullYear()} 광주대학교. 교내 구성원 전용 사이트입니다.</span>
-      <span>제출 자료는 심사 목적으로만 사용됩니다.</span>
+      <span><a class="admin-link" href="/admin">관리자</a></span>
     </div>
   </div>
 </footer>`;

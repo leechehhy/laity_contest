@@ -199,6 +199,16 @@
     LAITY.msg(box, 'ok', `${MODE_LABEL[mode]} 로 저장했습니다. 현재 상태: ${j.gates.open ? '접수 중' : '마감'}`);
   }
 
+  /* ---------- 탭 전환 ---------- */
+  document.querySelectorAll('.tabs button').forEach((b) => {
+    b.onclick = () => {
+      document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('tab-apps').style.display = b.dataset.tab === 'apps' ? '' : 'none';
+      document.getElementById('tab-qna').style.display = b.dataset.tab === 'qna' ? '' : 'none';
+    };
+  });
+
   async function loadApps() {
     const j = await (await fetch('/api/admin/applications')).json();
     if (!j.ok) return;

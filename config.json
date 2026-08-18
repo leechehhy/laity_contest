@@ -65,21 +65,27 @@
   ],
   "awards": [
     {
-      "rank": "1등",
+      "rank": "대상",
       "count": "1팀",
-      "prize": "100만 원",
+      "prize": "50만 원",
       "extra": "총장 표창"
     },
     {
-      "rank": "2등",
-      "count": "미정",
-      "prize": "미정",
+      "rank": "최우수상",
+      "count": "2팀",
+      "prize": "각 30만 원",
       "extra": "총장 표창"
     },
     {
-      "rank": "3등",
-      "count": "미정",
-      "prize": "미정",
+      "rank": "우수상",
+      "count": "2팀",
+      "prize": "각 20만 원",
+      "extra": "총장 표창"
+    },
+    {
+      "rank": "장려상",
+      "count": "5팀",
+      "prize": "각 10만 원",
       "extra": "총장 표창"
     }
   ],

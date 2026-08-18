@@ -279,12 +279,14 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
 .crit-score { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gu-deep); }
 
 /* ---------- 시상 ---------- */
-.awards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.awards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 860px) { .awards { grid-template-columns: 1fr 1fr; } }
 .award {
   border: 1.5px solid var(--line); border-radius: var(--radius); padding: 28px 22px; text-align: center; background: #fff;
 }
 .award.top { border-color: var(--mas-yellow); border-width: 2.5px; background: linear-gradient(180deg, #fffaeb, #fff); }
-.award .rank { font-size: 14px; font-weight: 800; color: var(--ink-3); letter-spacing: .02em; }
+.award .rank { font-size: 15px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.02em; }
+.award .rank small { display: block; font-size: 13px; font-weight: 700; color: var(--ink-3); margin-top: 2px; }
 .award .prize { font-size: 28px; font-weight: 800; letter-spacing: -.04em; margin: 6px 0 4px; color: var(--gu-deep); }
 .award.top .prize { color: var(--mas-orange-d); }
 .award .extra { font-size: 14px; color: var(--ink-2); }
@@ -507,11 +509,13 @@ table.adm .none { color: var(--ink-3); }
   background: var(--gu-deep-2); color: rgba(255, 255, 255, .68); padding: 52px 0 40px; font-size: 14.5px;
   position: relative;
 }
-.site-footer .cols { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 30px; align-items: start; }
+.site-footer .cols { display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center; }
 .site-footer h4 { color: #fff; font-size: 15.5px; margin: 0 0 12px; letter-spacing: -.02em; }
 .site-footer p { margin: 0 0 6px; line-height: 1.75; }
 .site-footer a:hover { color: var(--mas-yellow); text-decoration: underline; }
 .site-footer .emblem { width: 92px; opacity: .95; }
+.site-footer .admin-link { font-size: 12.5px; color: rgba(255, 255, 255, .42); }
+.site-footer .admin-link:hover { color: rgba(255, 255, 255, .8); text-decoration: underline; }
 .site-footer .bottom {
   margin-top: 34px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .14);
   display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13.5px;
