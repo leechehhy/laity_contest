@@ -4,12 +4,14 @@
 
   window.LAITY = {
     config: null,
+    gates: { apply: false, report: false },
 
     async loadConfig() {
       if (this.config) return this.config;
       const r = await fetch('/api/config');
       const j = await r.json();
       this.config = j.config;
+      this.gates = j.gates || this.gates;
       return this.config;
     },
 
@@ -24,7 +26,7 @@
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="/">
-      <img src="/img/logo-symbol.png" alt="광주대학교">
+      <img src="/img/logo.png" alt="광주대학교">
       <span class="bar"></span>
       <span class="txt">L<em>'AI'</em>TY 경진대회<small>대학 행정의 새로운 빛을 밝히다</small></span>
     </a>

@@ -226,6 +226,9 @@ app.post('/api/applications', async (req, res) => {
 
   const proposalFiles = req.files.proposal || [];
   const extraFiles = req.files.extras || [];
+  if (!proposalFiles[0]) {
+    return res.status(400).json({ ok: false, error: 'AI 활용사례 보고서 파일을 첨부해 주세요.' });
+  }
   try { checkFiles([...proposalFiles, ...extraFiles]); }
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
 
