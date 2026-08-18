@@ -143,34 +143,28 @@ function denyAdmin(res) { res.status(401).json({ ok: false, error: '관리자 �
  * ------------------------------------------------------------- */
 const GATE_MODES = ['auto', 'open', 'closed'];
 
-function gateModes() {
+function gateMode() {
   const row = settings.all()[0] || {};
   const g = CONFIG.gates || {};
-  const pick = (a, b) => (GATE_MODES.includes(a) ? a : (GATE_MODES.includes(b) ? b : 'auto'));
-  return {
-    applyMode: pick(row.applyMode, g.applyMode),
-    reportMode: pick(row.reportMode, g.reportMode),
-  };
+  // 예전 버전(신청·보고서 분리)에서 저장된 값도 그대로 읽어 들입니다.
+  const cand = [row.mode, row.applyMode, g.mode, g.applyMode];
+  for (const v of cand) if (GATE_MODES.includes(v)) return v;
+  return 'auto';
 }
 
-async function saveGateModes(patch) {
+async function saveGateMode(mode) {
   const row = settings.all()[0];
-  if (row) await settings.update(row.id, patch);
-  else await settings.insert(Object.assign({ id: U.randomId(), applyMode: 'auto', reportMode: 'auto' }, patch));
+  if (row) await settings.update(row.id, { mode, applyMode: mode, reportMode: mode });
+  else await settings.insert({ id: U.randomId(), mode });
 }
 
 function computeGates() {
-  const m = gateModes();
+  const mode = gateMode();
   const s = CONFIG.schedule || {};
   const today = U.todayISO();
-  const inRange = (from, to) => !!from && !!to && today >= from && today <= to;
-  const decide = (mode, from, to) => (mode === 'open' ? true : mode === 'closed' ? false : inRange(from, to));
-  return {
-    apply: decide(m.applyMode, s.applyOpen, s.applyClose),
-    report: decide(m.reportMode, s.proposalOpen, s.proposalClose),
-    applyMode: m.applyMode,
-    reportMode: m.reportMode,
-  };
+  const inRange = !!s.applyOpen && !!s.applyClose && today >= s.applyOpen && today <= s.applyClose;
+  const open = mode === 'open' ? true : mode === 'closed' ? false : inRange;
+  return { open, mode };
 }
 
 /* ---------------------------------------------------------------
@@ -198,8 +192,8 @@ const one = (v) => (Array.isArray(v) ? v[0] : v);
 const txt = (v) => String(one(v) == null ? '' : one(v)).trim();
 
 app.post('/api/applications', async (req, res) => {
-  if (!computeGates().apply) {
-    return res.status(403).json({ ok: false, error: '참가 신청 접수 기간이 아닙니다.' });
+  if (!computeGates().open) {
+    return res.status(403).json({ ok: false, error: '접수 기간이 아닙니다.' });
   }
   const b = req.body;
   // 개인 참가는 팀명 대신 본인 성명을 사용합니다.
@@ -370,12 +364,8 @@ app.post('/api/applications/update', async (req, res) => {
 
   const proposalFiles = req.files.proposal || [];
   const extraFiles = req.files.extras || [];
-  const wantsFile = proposalFiles.length > 0 || extraFiles.length > 0 || b.removeExtras !== undefined;
-  if (wantsFile && !g.report) {
-    return res.status(403).json({ ok: false, error: '활용사례 보고서 제출 기간이 아닙니다.' });
-  }
-  if (!wantsFile && !g.apply && !g.report) {
-    return res.status(403).json({ ok: false, error: '지금은 신청 내용을 수정할 수 없습니다.' });
+  if (!g.open) {
+    return res.status(403).json({ ok: false, error: '접수 기간이 종료되어 내용을 수정하실 수 없습니다.' });
   }
   try { checkFiles([...proposalFiles, ...extraFiles]); }
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
@@ -514,14 +504,9 @@ app.get('/api/admin/settings', (req, res) => {
 
 app.post('/api/admin/settings', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
-  const patch = {};
-  for (const k of ['applyMode', 'reportMode']) {
-    const v = txt(req.body[k]);
-    if (!v) continue;
-    if (!GATE_MODES.includes(v)) return res.status(400).json({ ok: false, error: '알 수 없는 설정값입니다.' });
-    patch[k] = v;
-  }
-  if (Object.keys(patch).length) await saveGateModes(patch);
+  const v = txt(req.body.mode);
+  if (!GATE_MODES.includes(v)) return res.status(400).json({ ok: false, error: '알 수 없는 설정값입니다.' });
+  await saveGateMode(v);
   res.json({ ok: true, gates: computeGates() });
 });
 

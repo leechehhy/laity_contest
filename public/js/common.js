@@ -4,7 +4,7 @@
 
   window.LAITY = {
     config: null,
-    gates: { apply: false, report: false },
+    gates: { open: false, mode: 'auto' },
 
     async loadConfig() {
       if (this.config) return this.config;

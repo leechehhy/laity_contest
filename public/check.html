@@ -169,10 +169,10 @@
 (async function () {
   const c = await LAITY.mount('/check');
   document.getElementById('propPeriod').textContent =
-    `${c.schedule.proposalOpen} ~ ${c.schedule.proposalClose}`;
+    `${c.schedule.applyOpen} ~ ${c.schedule.applyClose}`;
 
-  // 보고서 제출 기간이 아니면 업로드 칸을 숨깁니다.
-  if (!LAITY.gates.report) {
+  // 접수 기간이 아니면 업로드 칸을 숨깁니다.
+  if (!LAITY.gates.open) {
     document.getElementById('reportForms').style.display = 'none';
     document.getElementById('reportClosed').style.display = '';
   }

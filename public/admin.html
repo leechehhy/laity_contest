@@ -44,7 +44,7 @@
       <!-- 접수 개폐 -->
       <div class="panel" id="gatePanel" style="padding:22px 26px;margin-bottom:18px;">
         <h2 style="margin:0 0 4px;font-size:19px;">접수 개폐 설정</h2>
-        <p class="hint" style="margin:0 0 16px;">‘일정에 따름’이면 아래 기간에만 자동으로 열립니다. 기간을 연장하거나 앞당겨 닫으려면 ‘강제로 열기 / 강제로 닫기’를 선택하세요.</p>
+        <p class="hint" style="margin:0 0 16px;padding-left:0;">선택하면 즉시 저장되며, 서버가 다시 시작돼도 유지됩니다.</p>
         <div class="gate-grid" id="gateGrid"></div>
         <div class="msg" id="gateMsg" style="margin-top:14px;"></div>
       </div>
@@ -149,35 +149,36 @@
   }
 
   /* ---------- 접수 개폐 ---------- */
-  const GATE_DEFS = [
-    { key: 'applyMode', on: 'apply', title: '참가 신청 접수', from: 'applyOpen', to: 'applyClose',
-      note: '켜져 있으면 참가 신청 화면에서 신청서를 받습니다.' },
-    { key: 'reportMode', on: 'report', title: '활용사례 보고서 제출', from: 'proposalOpen', to: 'proposalClose',
-      note: '켜져 있으면 신청자가 ‘접수 확인’ 화면에서 성명·비밀번호로 보고서를 올릴 수 있습니다.' },
-  ];
-  const MODE_LABEL = { auto: '일정에 따름 (자동)', open: '강제로 열기', closed: '강제로 닫기' };
+  const MODE_LABEL = {
+    auto: '일정에 따름 (자동)',
+    open: '강제로 열기',
+    closed: '강제로 닫기',
+  };
+  const MODE_DESC = {
+    auto: '아래 접수 기간 안에만 자동으로 열립니다.',
+    open: '기간과 관계없이 지금 접수를 받습니다. (기간 연장)',
+    closed: '기간과 관계없이 지금 접수를 닫습니다. (조기 마감)',
+  };
 
   function drawGates(g, sch) {
-    document.getElementById('gateGrid').innerHTML = GATE_DEFS.map((d) => {
-      const open = !!g[d.on];
-      const mode = g[d.key] || 'auto';
-      return `
+    const open = !!g.open;
+    const mode = g.mode || 'auto';
+    document.getElementById('gateGrid').innerHTML = `
       <div class="gate-card ${open ? 'open' : ''}">
         <div class="gate-top">
-          <b>${d.title}</b>
+          <b>참가 신청 · 보고서 접수</b>
           <span class="badge ${open ? 'done' : 'wait'}">${open ? '접수 중' : '마감'}</span>
         </div>
-        <div class="gate-period">일정: ${sch[d.from]} ~ ${sch[d.to]}</div>
+        <div class="gate-period">접수 기간: ${sch.applyOpen} ~ ${sch.applyClose}</div>
         <div class="gate-modes">
           ${['auto', 'open', 'closed'].map((m) => `
-            <label class="choice"><input type="radio" name="${d.key}" value="${m}" ${m === mode ? 'checked' : ''}><span class="dot"></span>${MODE_LABEL[m]}</label>`).join('')}
+            <label class="choice"><input type="radio" name="gateMode" value="${m}" ${m === mode ? 'checked' : ''}><span class="dot"></span>${MODE_LABEL[m]}<small>${MODE_DESC[m]}</small></label>`).join('')}
         </div>
-        <p class="gate-note">${d.note}</p>
+        <p class="gate-note">접수가 열려 있는 동안 참가자는 신청서를 제출하고, ‘접수 확인’ 화면에서 내용과 보고서 파일을 수정할 수 있습니다. 마감되면 조회·내려받기만 가능합니다.</p>
       </div>`;
-    }).join('');
 
     document.querySelectorAll('#gateGrid input[type=radio]').forEach((r) => {
-      r.onchange = () => saveGate(r.name, r.value);
+      r.onchange = () => saveGate(r.value);
     });
   }
 
@@ -186,28 +187,17 @@
     if (j.ok) drawGates(j.gates, j.schedule || {});
   }
 
-  async function saveGate(key, value) {
+  async function saveGate(mode) {
     const box = document.getElementById('gateMsg');
     LAITY.hideMsg(box);
-    const body = {}; body[key] = value;
     const r = await fetch('/api/admin/settings', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }),
     });
     const j = await r.json();
     if (!j.ok) { LAITY.msg(box, 'err', j.error || '저장하지 못했습니다.'); return; }
     drawGates(j.gates, c.schedule || {});
-    const d = GATE_DEFS.find((x) => x.key === key);
-    LAITY.msg(box, 'ok', `${d.title} — ${MODE_LABEL[value]} 로 저장했습니다. (현재 ${j.gates[d.on] ? '접수 중' : '마감'})`);
+    LAITY.msg(box, 'ok', `${MODE_LABEL[mode]} 로 저장했습니다. 현재 상태: ${j.gates.open ? '접수 중' : '마감'}`);
   }
-
-  document.querySelectorAll('.tabs button').forEach((b) => {
-    b.onclick = () => {
-      document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('on'));
-      b.classList.add('on');
-      document.getElementById('tab-apps').style.display = b.dataset.tab === 'apps' ? '' : 'none';
-      document.getElementById('tab-qna').style.display = b.dataset.tab === 'qna' ? '' : 'none';
-    };
-  });
 
   async function loadApps() {
     const j = await (await fetch('/api/admin/applications')).json();

@@ -254,18 +254,16 @@
     `접수 기간 ${s.applyOpen} ~ ${s.applyClose} (${LAITY.dday(s.applyClose)})`;
 
   // 접수 기간이 아니면 신청서를 감추고 안내만 보여 줍니다.
-  if (!LAITY.gates.apply) {
+  if (!LAITY.gates.open) {
     document.getElementById('formArea').style.display = 'none';
     document.getElementById('closedArea').style.display = '';
     document.getElementById('closedText').innerHTML =
-      `참가 신청 접수 기간은 <strong>${s.applyOpen} ~ ${s.applyClose}</strong> 입니다.` +
-      (LAITY.gates.report
-        ? ' 지금은 <strong>활용사례 보고서 제출 기간</strong>입니다. ‘접수 확인’ 메뉴에서 성명과 비밀번호로 보고서를 올려 주세요.'
-        : ' 기간이 연장되는 경우 이 화면에서 다시 신청하실 수 있습니다.');
+      `접수 기간은 <strong>${s.applyOpen} ~ ${s.applyClose}</strong> 입니다.` +
+      ' 기간이 연장되는 경우 이 화면에서 다시 신청하실 수 있습니다.';
     return;
   }
-  document.getElementById('propPeriod2').textContent = `${s.proposalOpen} ~ ${s.proposalClose}`;
-  document.getElementById('propPeriod').textContent = `${s.proposalOpen} ~ ${s.proposalClose}`;
+  document.getElementById('propPeriod2').textContent = `${s.applyOpen} ~ ${s.applyClose}`;
+  document.getElementById('propPeriod').textContent = `${s.applyOpen} ~ ${s.applyClose}`;
   document.getElementById('propFormLink').href = (c.forms && c.forms.proposal) || '#';
   document.querySelectorAll('.maxsize').forEach((e) => { e.textContent = c.upload.maxFileSizeMB + 'MB'; });
 

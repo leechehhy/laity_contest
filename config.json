@@ -13,8 +13,6 @@
   "schedule": {
     "applyOpen": "2026-08-19",
     "applyClose": "2026-08-26",
-    "proposalOpen": "2026-08-19",
-    "proposalClose": "2026-08-26",
     "steps": [
       {
         "step": "1",
@@ -180,8 +178,7 @@
     "proposal": "/forms/붙임2_AI활용사례_제안서_양식.hwpx"
   },
   "gates": {
-    "applyMode": "auto",
-    "reportMode": "auto"
+    "mode": "auto"
   },
   "judging": {
     "note": "1차 서면심사 → 2차 발표심사 2단계. 세부 배점은 대외 비공개(계획안·심사표에만 수록).",
