@@ -168,13 +168,24 @@
     <tr><th>제출물</th><td>AI 활용사례 보고서(필수) · 동작 증빙자료(선택) — 온라인 신청 시 함께 첨부</td></tr>
     <tr><th>운영 일정</th><td>2026. 8월 ~ 9월</td></tr>`;
 
+  // 기간은 "시작일 ~" / "종료일" 두 줄로 끊어 표시합니다.
+  const fmtRange = (v) => {
+    const t = String(v || '').trim();
+    const i = t.indexOf('~');
+    if (i <= 0) return `<span class="nb">${t}</span>`;
+    const from = t.slice(0, i).trim();
+    const to = t.slice(i + 1).trim();
+    if (!to) return `<span class="nb">${t}</span>`;
+    return `<span class="nb">${from} ~</span><br><span class="nb">${to}</span>`;
+  };
+
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById('timeline').innerHTML = s.steps.map((x) => {
     const now = (today >= s.applyOpen && today <= s.applyClose && x.name.includes('접수'));
     return `<div class="step-card ${now ? 'now' : ''}">
       <div class="step-no">${x.step}</div>
       <div class="step-name">${x.name}</div>
-      <div class="step-date">${x.date}</div>
+      <div class="step-date">${fmtRange(x.date)}</div>
       ${now ? '<span class="step-badge">접수중</span>' : ''}
     </div>`;
   }).join('');

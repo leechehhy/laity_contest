@@ -251,7 +251,9 @@ table.info th { width: 172px; background: var(--gu-green-xl); font-weight: 800; 
 .step-date {
   margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line);
   color: var(--ink-2); font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+  line-height: 1.55;
 }
+.step-date .nb { white-space: nowrap; }
 .step-badge {
   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
   background: var(--mas-orange); color: #fff; font-size: 11.5px; font-weight: 800;
