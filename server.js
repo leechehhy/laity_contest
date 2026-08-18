@@ -26,6 +26,7 @@ let CONFIG = loadConfig();
 
 const apps = new Table('applications');
 const qnas = new Table('questions');
+const settings = new Table('settings');
 const app = new App();
 
 /* ---------------------------------------------------------------
@@ -134,6 +135,45 @@ function isAdmin(req) { return validToken(readCookie(req, 'laity_admin')); }
 function denyAdmin(res) { res.status(401).json({ ok: false, error: '관리자 로그인이 필요합니다.' }); }
 
 /* ---------------------------------------------------------------
+ * 접수 개폐(게이트)
+ *
+ *  auto   : config.json 의 일정에 따라 자동으로 열리고 닫힙니다.
+ *  open   : 일정과 관계없이 강제로 엽니다.  (기간 연장 등)
+ *  closed : 일정과 관계없이 강제로 닫습니다.
+ * ------------------------------------------------------------- */
+const GATE_MODES = ['auto', 'open', 'closed'];
+
+function gateModes() {
+  const row = settings.all()[0] || {};
+  const g = CONFIG.gates || {};
+  const pick = (a, b) => (GATE_MODES.includes(a) ? a : (GATE_MODES.includes(b) ? b : 'auto'));
+  return {
+    applyMode: pick(row.applyMode, g.applyMode),
+    reportMode: pick(row.reportMode, g.reportMode),
+  };
+}
+
+async function saveGateModes(patch) {
+  const row = settings.all()[0];
+  if (row) await settings.update(row.id, patch);
+  else await settings.insert(Object.assign({ id: U.randomId(), applyMode: 'auto', reportMode: 'auto' }, patch));
+}
+
+function computeGates() {
+  const m = gateModes();
+  const s = CONFIG.schedule || {};
+  const today = U.todayISO();
+  const inRange = (from, to) => !!from && !!to && today >= from && today <= to;
+  const decide = (mode, from, to) => (mode === 'open' ? true : mode === 'closed' ? false : inRange(from, to));
+  return {
+    apply: decide(m.applyMode, s.applyOpen, s.applyClose),
+    report: decide(m.reportMode, s.proposalOpen, s.proposalClose),
+    applyMode: m.applyMode,
+    reportMode: m.reportMode,
+  };
+}
+
+/* ---------------------------------------------------------------
  * 공개 API
  * ------------------------------------------------------------- */
 app.get('/healthz', (req, res) => res.send('ok', 'text/plain; charset=utf-8'));
@@ -141,7 +181,7 @@ app.get('/healthz', (req, res) => res.send('ok', 'text/plain; charset=utf-8'));
 app.get('/api/config', (req, res) => {
   CONFIG = loadConfig();
   const { adminPassword, ...safe } = CONFIG;
-  res.json({ ok: true, config: safe });
+  res.json({ ok: true, config: safe, gates: computeGates() });
 });
 
 const CATEGORY_NAME = (key) => {
@@ -158,6 +198,9 @@ const one = (v) => (Array.isArray(v) ? v[0] : v);
 const txt = (v) => String(one(v) == null ? '' : one(v)).trim();
 
 app.post('/api/applications', async (req, res) => {
+  if (!computeGates().apply) {
+    return res.status(403).json({ ok: false, error: '참가 신청 접수 기간이 아닙니다.' });
+  }
   const b = req.body;
   // 개인 참가는 팀명 대신 본인 성명을 사용합니다.
   if (txt(b.entryType) !== 'team') b.teamName = txt(b.leaderName);
@@ -316,6 +359,7 @@ app.post('/api/applications/reset', async (req, res) => {
 
 app.post('/api/applications/update', async (req, res) => {
   const b = req.body;
+  const g = computeGates();
   const row = apps.find((r) => r.no === txt(b.no).toUpperCase());
   if (!row || !U.verifyPassword(txt(b.password), row.pwSalt, row.pwHash)) {
     return res.status(404).json({ ok: false, error: '접수번호 또는 비밀번호가 일치하지 않습니다.' });
@@ -323,6 +367,13 @@ app.post('/api/applications/update', async (req, res) => {
 
   const proposalFiles = req.files.proposal || [];
   const extraFiles = req.files.extras || [];
+  const wantsFile = proposalFiles.length > 0 || extraFiles.length > 0 || b.removeExtras !== undefined;
+  if (wantsFile && !g.report) {
+    return res.status(403).json({ ok: false, error: '활용사례 보고서 제출 기간이 아닙니다.' });
+  }
+  if (!wantsFile && !g.apply && !g.report) {
+    return res.status(403).json({ ok: false, error: '지금은 신청 내용을 수정할 수 없습니다.' });
+  }
   try { checkFiles([...proposalFiles, ...extraFiles]); }
   catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
 
@@ -452,6 +503,24 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 app.get('/api/admin/session', (req, res) => res.json({ ok: isAdmin(req) }));
+
+app.get('/api/admin/settings', (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  res.json({ ok: true, gates: computeGates(), schedule: CONFIG.schedule });
+});
+
+app.post('/api/admin/settings', async (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  const patch = {};
+  for (const k of ['applyMode', 'reportMode']) {
+    const v = txt(req.body[k]);
+    if (!v) continue;
+    if (!GATE_MODES.includes(v)) return res.status(400).json({ ok: false, error: '알 수 없는 설정값입니다.' });
+    patch[k] = v;
+  }
+  if (Object.keys(patch).length) await saveGateModes(patch);
+  res.json({ ok: true, gates: computeGates() });
+});
 
 app.get('/api/admin/applications', (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
@@ -607,6 +676,7 @@ async function boot() {
   }
   await apps.load();
   await qnas.load();
+  await settings.load();
   console.log(`  [storage] 신청 ${apps.all().length}건 · 질문 ${qnas.all().length}건 불러옴`);
   start();
 }

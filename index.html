@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>제1회 광주대학교 L'AI'TY 경진대회</title>
+<meta name="description" content="대학 행정의 새로운 빛을 밝히다 — 나(우리)는 AI로 이런 서비스를 만들었다">
+<link rel="icon" href="/img/emblem-green.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="header"></div>
+
+<section class="hero">
+  <span class="glow"></span>
+  <div class="wrap">
+    <div>
+      <h1>대학 행정의<br><span class="accent">새로운 빛</span>을 밝히다</h1>
+      <p class="lead">
+        AI로 만든 나의 업무 서비스를 소개해 주세요.
+        매주 반복하던 일을 대신해 주는 도구, 쌓인 자료를 빠르고 정확하게 요약·분석하는 방법 —
+        업무를 한결 가볍게 만든 경험이라면 무엇이든 좋습니다.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="/apply">참가 신청하기 →</a>
+        <a class="btn btn-ghost btn-lg" href="#guide">대회 안내 보기</a>
+      </div>
+    </div>
+    <div class="hero-mascot">
+      <img src="/img/mascot-welcome.png" alt="광주대학교 마스코트">
+    </div>
+    <dl class="hero-meta" id="heroMeta"></dl>
+  </div>
+  <div class="ridge"></div>
+</section>
+
+<!-- 이런 걸 만들면 됩니다 -->
+<section class="section" id="guide">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tag">무엇을 내나요</div>
+      <h2>이런 것을 만들었다면, 출품작입니다</h2>
+      <p>이 대회는 <strong>“AI를 어떻게 사용했는가”</strong>가 아니라 <strong>“AI로 무엇을 만들었는가”</strong>를 봅니다.</p>
+    </div>
+
+    <div class="example">
+      <div>
+        <div class="lbl">EXAMPLE</div>
+        <p class="q">
+          “매주 월요일 아침, 각 팀에서 보내온 주간보고를 일일이 열어 옮겨 붙이던 일이 있었습니다.
+          Claude로 <strong>메일함의 주간보고를 자동으로 취합해 회의자료 초안을 만들어 주는 서비스</strong>를 만들었고,
+          지금은 3시간 걸리던 일이 15분이면 끝납니다.”
+        </p>
+        <p class="note">↑ 이렇게 <strong>실제로 동작하고, 실제로 쓰이고 있는 서비스</strong>가 출품 대상입니다.</p>
+      </div>
+      <img src="/img/mascot-guide.png" alt="">
+    </div>
+
+    <div class="cards cards-5" style="margin-top:30px;" id="cats"></div>
+  </div>
+</section>
+
+<!-- 대회 개요 -->
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>대회 개요</h2>
+    </div>
+    <div class="table-box">
+      <table class="info" id="overview"></table>
+    </div>
+
+    <div class="section-head" style="margin-top:54px;">
+      <h2>추진 일정</h2>
+    </div>
+    <div class="timeline" id="timeline"></div>
+    <p style="color:var(--ink-3);font-size:14px;margin-top:12px;">※ 상기 일정은 변동될 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- 심사기준 -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>심사기준</h2>
+      <p>1차 서면심사(제안서) → 2차 발표심사(현장 발표 및 시연) 2단계로 진행합니다.</p>
+    </div>
+    <div class="crit" id="crit"></div>
+
+    <div class="cards" style="margin-top:42px;">
+      <div class="card">
+        <div class="num">✓</div>
+        <h3>이렇게 평가합니다</h3>
+        <p>규모가 작아도 실제로 매일 쓰이는 서비스를 높게 평가합니다. 반대로 정교하게 만들었어도 아직 아무도 쓰지 않는 시제품은 낮게 평가합니다.</p>
+      </div>
+      <div class="card">
+        <div class="num">✕</div>
+        <h3>이런 건 보지 않습니다</h3>
+        <p>어떤 프롬프트를 썼는지, 어떤 도구가 최신인지, 코딩 실력이 어느 정도인지는 평가하지 않습니다. 비전공 직원과 전산 담당자를 기술 난이도로 비교하지 않습니다.</p>
+      </div>
+      <div class="card">
+        <div class="num">＋</div>
+        <h3>시연하면 가점</h3>
+        <p>발표 때 서비스를 직접 실행해 입력부터 결과까지 보여 주면 최대 10점의 가점이 있습니다. 사전 녹화 영상도 최대 5점 인정됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 시상 -->
+<section class="section tint">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tag">시상 내역</div>
+      <h2>총 상금 100만 원</h2>
+      <p>전 수상팀 총장 표창</p>
+    </div>
+    <div class="awards" id="awards"></div>
+  </div>
+</section>
+
+<!-- 유의사항 + CTA -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>유의사항</h2>
+    </div>
+    <div class="notice-box" id="notice"></div>
+
+    <div class="cta">
+      <div>
+        <h2>만들어 둔 것이 있다면, 지금 알려 주세요</h2>
+        <p>신청은 5분이면 충분합니다. 제안서는 9월에 따로 올려도 됩니다.</p>
+        <a class="btn btn-primary btn-lg" href="/apply">참가 신청하기 →</a>
+      </div>
+      <img src="/img/mascot-cheer.png" alt="">
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+
+<script src="/js/common.js"></script>
+<script>
+(async function () {
+  const c = await LAITY.mount('/');
+  const s = c.schedule;
+
+  document.getElementById('heroMeta').innerHTML = `
+    <div><dt>참가 신청</dt><dd>${s.applyOpen.slice(5).replace('-', '.')} ~ ${s.applyClose.slice(5).replace('-', '.')}<span class="dday">${LAITY.dday(s.applyClose)}</span></dd></div>
+    <div><dt>참가 대상</dt><dd>교직원 개인 또는 3인 이내 팀</dd></div>
+    <div><dt>시상 규모</dt><dd>총 100만 원 · 4팀</dd></div>`;
+
+  document.getElementById('cats').innerHTML = c.categories.map((x, i) => `
+    <div class="card">
+      <div class="num">${i + 1}</div>
+      <h3>${x.name}</h3>
+      <p>${x.desc}</p>
+    </div>`).join('');
+
+  document.getElementById('overview').innerHTML = `
+    <tr><th>대회명</th><td>${c.contest.round} ${c.contest.title}</td></tr>
+    <tr><th>대회 주제</th><td>${c.contest.subject}</td></tr>
+    <tr><th>참가 대상</th><td>${c.contest.target}</td></tr>
+    <tr><th>사용 도구</th><td>${c.contest.tools} — 도구 종류에는 제한이 없습니다</td></tr>
+    <tr><th>제출물</th><td>참가신청서(온라인) · AI 서비스 개발 제안서(A4 3~5쪽) · 동작 증빙자료</td></tr>
+    <tr><th>운영 일정</th><td>2026. 8월 ~ 9월</td></tr>`;
+
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('timeline').innerHTML = s.steps.map((x) => {
+    const now = (today >= s.applyOpen && today <= s.applyClose && x.name.includes('참가 신청'));
+    return `<div class="tl-item ${now ? 'now' : ''}">
+      <div class="tl-step">${x.step}</div>
+      <div class="tl-name">${x.name}${now ? ' <span class="badge done">접수중</span>' : ''}</div>
+      <div class="tl-date">${x.date}</div>
+    </div>`;
+  }).join('');
+
+  const max = Math.max(...c.criteria.map((x) => x.score));
+  document.getElementById('crit').innerHTML = c.criteria.map((x) => `
+    <div class="crit-row ${x.name.includes('가점') ? 'bonus' : ''}">
+      <div class="crit-name">${x.name}<small>${x.desc}</small></div>
+      <div class="crit-bar"><i style="width:${(x.score / max) * 100}%"></i></div>
+      <div class="crit-score">${x.name.includes('가점') ? '+' : ''}${x.score}점</div>
+    </div>`).join('');
+
+  document.getElementById('awards').innerHTML = c.awards.map((a, i) => `
+    <div class="award ${i === 0 ? 'top' : ''}">
+      <div class="rank">${a.rank} · ${a.count}</div>
+      <div class="prize">${a.prize}</div>
+      <div class="extra">${a.extra}</div>
+    </div>`).join('');
+
+  document.getElementById('notice').innerHTML = '<ul>' + c.notice.map((n) => `<li>${n}</li>`).join('') + '</ul>';
+})();
+</script>
+</body>
+</html>

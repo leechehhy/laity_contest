@@ -11,7 +11,7 @@
     "tools": "생성형 AI(Claude 등) 기반의 모든 서비스"
   },
   "schedule": {
-    "applyOpen": "2026-08-10",
+    "applyOpen": "2026-08-19",
     "applyClose": "2026-08-21",
     "proposalOpen": "2026-09-07",
     "proposalClose": "2026-09-11",
@@ -19,16 +19,16 @@
       {
         "step": "①",
         "name": "계획수립 · 공고",
-        "date": "~ 2026. 8. 7.(금)"
+        "date": "~ 2026. 8. 18.(화)"
       },
       {
         "step": "②",
         "name": "참가 신청 접수",
-        "date": "2026. 8. 10.(월) ~ 8. 21.(목)"
+        "date": "2026. 8. 19.(수) ~ 8. 21.(금)"
       },
       {
         "step": "③",
-        "name": "제안서 제출",
+        "name": "활용사례 보고서 제출",
         "date": "2026. 9. 7.(월) ~ 9. 11.(금)"
       },
       {
@@ -202,5 +202,9 @@
   "forms": {
     "application": "/forms/붙임1_참가신청서_양식.hwpx",
     "proposal": "/forms/붙임2_AI활용사례_제안서_양식.hwpx"
+  },
+  "gates": {
+    "applyMode": "auto",
+    "reportMode": "auto"
   }
 }

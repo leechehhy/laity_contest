@@ -91,9 +91,15 @@
       </div>
 
       <div class="panel">
-        <h2><span class="n">📎</span> 제출 자료</h2>
-        <p class="hint">제안서 제출 기간: <span id="propPeriod"></span></p>
+        <h2><span class="n">📎</span> 활용사례 보고서 제출</h2>
+        <p class="hint">제출 기간: <span id="propPeriod"></span></p>
 
+        <div class="notice-box" id="reportClosed" style="display:none;margin-bottom:16px;">
+          <strong>지금은 보고서 제출 기간이 아닙니다.</strong>
+          <p style="margin:6px 0 0;">제출 기간이 시작되면 이 화면에서 보고서를 올리실 수 있습니다. 이미 올린 자료는 아래에서 내려받아 확인만 가능합니다.</p>
+        </div>
+
+        <div id="reportForms">
         <div class="field">
           <span class="lb">AI 활용사례 제안서 [붙임 2]</span>
           <div class="filelist" id="curProposal"></div>
@@ -116,6 +122,7 @@
             <input type="file" id="extras" multiple>
           </label>
           <div class="filelist" id="extrasList"></div>
+        </div>
         </div>
       </div>
 
@@ -163,6 +170,12 @@
   const c = await LAITY.mount('/check');
   document.getElementById('propPeriod').textContent =
     `${c.schedule.proposalOpen} ~ ${c.schedule.proposalClose}`;
+
+  // 보고서 제출 기간이 아니면 업로드 칸을 숨깁니다.
+  if (!LAITY.gates.report) {
+    document.getElementById('reportForms').style.display = 'none';
+    document.getElementById('reportClosed').style.display = '';
+  }
 
   const msg = document.getElementById('msg');
   let cur = null, auth = { no: '', password: '' };
