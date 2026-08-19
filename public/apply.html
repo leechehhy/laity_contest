@@ -179,6 +179,7 @@
             <div class="check-line"><input type="checkbox" id="ag3"><label for="ag3">사례 수행 과정에서 교내 정보보안 지침 및 AI 이용 수칙을 준수하였음을 확인합니다.</label></div>
             <div class="check-line"><input type="checkbox" id="ag4"><label for="ag4">수상 시 본 사례가 교내 공유·확산 자료로 활용되는 것에 동의합니다.</label></div>
             <div class="check-line"><input type="checkbox" id="ag5"><label for="ag5">신청서 및 보고서 기재 내용이 사실과 다를 경우 평가 제외·수상 취소될 수 있음을 확인합니다.</label></div>
+            <div class="check-line"><input type="checkbox" id="ag6"><label for="ag6"><strong>1인(팀)당 1건만 응모</strong>할 수 있으며, 개인·팀 중복을 포함해 <strong>2건 이상 제출한 경우 모두 인정되지 않음</strong>을 확인합니다.</label></div>
             <div style="text-align:right;margin-top:6px;">
               <button type="button" class="btn btn-line btn-sm" id="checkAll">전체 선택</button>
             </div>
@@ -290,7 +291,7 @@
   sum.addEventListener('input', () => { document.getElementById('sumCount').textContent = sum.value.length; });
 
   document.getElementById('checkAll').onclick = () => {
-    ['ag1','ag2','ag3','ag4','ag5','agPrivacy'].forEach((id) => { document.getElementById(id).checked = true; });
+    ['ag1','ag2','ag3','ag4','ag5','ag6','agPrivacy'].forEach((id) => { document.getElementById(id).checked = true; });
   };
 
   function bindFile(inputId, listId) {
@@ -328,9 +329,9 @@
     if (!document.querySelector('input[name=category]:checked')) {
       return LAITY.msg(msg, 'err', '응모 분야를 선택해 주세요.');
     }
-    for (const id of ['ag1','ag2','ag3','ag4','ag5']) {
+    for (const id of ['ag1','ag2','ag3','ag4','ag5','ag6']) {
       if (!document.getElementById(id).checked) {
-        return LAITY.msg(msg, 'err', '확인 및 서약 사항 5개 항목에 모두 동의해 주세요.');
+        return LAITY.msg(msg, 'err', '확인 및 서약 사항 6개 항목에 모두 동의해 주세요.');
       }
     }
     if (!document.getElementById('agPrivacy').checked) {
@@ -357,7 +358,7 @@
     ].filter((m) => m.name);
     fd.append('members', JSON.stringify(members));
 
-    fd.append('agreements', JSON.stringify(['ag1','ag2','ag3','ag4','ag5'].map((id) => document.getElementById(id).checked)));
+    fd.append('agreements', JSON.stringify(['ag1','ag2','ag3','ag4','ag5','ag6'].map((id) => document.getElementById(id).checked)));
     fd.append('agreePrivacy', 'true');
     fd.append('agreeAll', 'true');
 

@@ -211,7 +211,7 @@ app.post('/api/applications', async (req, res) => {
   }
   let agreements = [];
   try { agreements = JSON.parse(txt(b.agreements) || '[]'); } catch (e) { agreements = []; }
-  if (agreements.length < 5 || agreements.some((x) => x !== true) || txt(b.agreePrivacy) !== 'true') {
+  if (agreements.length < 6 || agreements.some((x) => x !== true) || txt(b.agreePrivacy) !== 'true') {
     return res.status(400).json({ ok: false, error: '확인 및 서약 사항과 개인정보 수집·이용에 모두 동의해 주세요.' });
   }
   if (txt(b.summary).length > 300) {
