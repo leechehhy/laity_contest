@@ -215,7 +215,7 @@ app.post('/api/applications', async (req, res) => {
     return res.status(400).json({ ok: false, error: '확인 및 서약 사항과 개인정보 수집·이용에 모두 동의해 주세요.' });
   }
   if (txt(b.summary).length > 300) {
-    return res.status(400).json({ ok: false, error: '사례 요약은 300자 이내로 작성해 주세요.' });
+    return res.status(400).json({ ok: false, error: '활용 사례 요약은 300자 이내로 작성해 주세요.' });
   }
 
   const proposalFiles = req.files.proposal || [];
@@ -594,8 +594,8 @@ app.get('/api/admin/applications.xlsx', (req, res) => {
   const columns = [
     ['접수번호', 16], ['접수일시', 18], ['참가구분', 10], ['팀명', 18], ['대표자', 10],
     ['소속(부서)', 20], ['연락처', 16], ['이메일', 26], ['팀원', 30],
-    ['응모분야', 20], ['사례명', 30], ['활용 AI 도구', 26], ['적용 업무', 24],
-    ['사례 요약', 60], ['보고서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40], ['최종수정', 18],
+    ['응모분야', 20], ['프로젝트명', 30], ['사용 AI 도구', 26], ['적용 업무', 24],
+    ['활용 사례 요약', 60], ['보고서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40], ['최종수정', 18],
   ].map(([header, width]) => ({ header, width }));
 
   const rows = apps.all().sort((a, b) => a.seq - b.seq).map((r) => [

@@ -135,10 +135,10 @@
           <input type="text" id="e_categoryEtc" placeholder="기타 분야를 직접 입력" style="margin-top:10px;display:none;">
         </div>
         <div class="grid-2">
-          <div class="field"><label>사례명</label><input type="text" id="e_caseName"></div>
+          <div class="field"><label>프로젝트명</label><input type="text" id="e_caseName"></div>
           <div class="field"><label>적용 업무</label><input type="text" id="e_targetTask"></div>
         </div>
-        <div class="field"><label>활용 AI 도구</label><input type="text" id="e_aiTools"></div>
+        <div class="field"><label>사용 AI 도구</label><input type="text" id="e_aiTools"></div>
         <div class="grid-2">
           <div class="field"><label>팀명</label><input type="text" id="e_teamName"></div>
           <div class="field"><label>소속(부서)</label><input type="text" id="e_leaderDept"></div>
@@ -148,7 +148,7 @@
           <div class="field"><label>이메일</label><input type="email" id="e_leaderEmail"></div>
         </div>
         <div class="field">
-          <label>사례 요약 (300자 이내)</label>
+          <label>활용 사례 요약 (300자 이내)</label>
           <textarea id="e_summary" maxlength="300" style="min-height:150px;"></textarea>
         </div>
       </div>
@@ -195,8 +195,8 @@
       <tr><th>대표자</th><td>${LAITY.esc(a.leader.name)} (${LAITY.esc(a.leader.dept)})</td></tr>
       <tr><th>팀원</th><td>${LAITY.esc(members)}</td></tr>
       <tr><th>응모 분야</th><td>${LAITY.esc(a.categoryName || a.category)}</td></tr>
-      <tr><th>사례명</th><td><strong>${LAITY.esc(a.caseName)}</strong></td></tr>
-      <tr><th>활용 AI 도구</th><td>${LAITY.esc(a.aiTools)}</td></tr>
+      <tr><th>프로젝트명</th><td><strong>${LAITY.esc(a.caseName)}</strong></td></tr>
+      <tr><th>사용 AI 도구</th><td>${LAITY.esc(a.aiTools)}</td></tr>
       <tr><th>적용 업무</th><td>${LAITY.esc(a.targetTask)}</td></tr>`;
 
     // 현재 파일
