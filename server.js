@@ -235,7 +235,7 @@ app.post('/api/applications', async (req, res) => {
   const cat = txt(b.category);
   const row = {
     id: U.randomId(),
-    no: U.makeNo((CONFIG.brand && CONFIG.brand.prefix) || 'LAITY', seq, new Date().getFullYear()),
+    no: U.makeApplyNo(apps.all().map((r) => r.no)),
     seq,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

@@ -114,7 +114,7 @@
   <div class="wrap">
     <div class="section-head">
       <h2>시상</h2>
-      <p>총 상금 160만 원 · 8팀에게 수여합니다. 전 수상팀 총장 표창.</p>
+      <p>총 상금 160만 원 · 8팀에게 수여합니다.</p>
     </div>
     <div class="awards" id="awards"></div>
   </div>
@@ -196,7 +196,7 @@
       <div class="trophy">🏆</div>
       <div class="rank">${a.rank}<small>${a.count}</small></div>
       <div class="prize">${a.prize}</div>
-      <div class="extra">${a.extra}</div>
+      ${a.extra ? `<div class="extra">${a.extra}</div>` : ''}
     </div>`).join('');
 
   document.getElementById('notice').innerHTML = '<ul>' + c.notice.map((n) => `<li>${n}</li>`).join('') + '</ul>';
