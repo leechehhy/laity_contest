@@ -421,6 +421,7 @@ input::placeholder, textarea::placeholder { color: #a9b6ac; }
 .msg.show { display: block; }
 .msg.err { background: #fdf2f1; border: 1.5px solid #f0c7c4; color: var(--err); }
 .msg.ok { background: #eff9f2; border: 1.5px solid #b9e0c7; color: var(--ok); }
+.msg.warn { background: #fff8e8; border: 1.5px solid #f2ddac; color: var(--warn); }
 
 /* ---------- 완료 화면 ---------- */
 .done { text-align: center; padding: 44px 20px 56px; }

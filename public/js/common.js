@@ -28,7 +28,7 @@
     <a class="brand" href="/">
       <img src="/img/logo.png" alt="광주대학교">
       <span class="bar"></span>
-      <span class="txt">L<em>'AI'</em>TY 경진대회<small>AI, 대학 행정의 새로운 ‘빛’이 되다</small></span>
+      <span class="txt">L<em>‘AI’</em>TY 경진대회<small>AI, 대학 행정의 새로운 ‘빛’이 되다</small></span>
     </a>
     <button class="nav-toggle" type="button" aria-label="메뉴" onclick="document.querySelector('.nav').classList.toggle('open')">☰</button>
     <nav class="nav">

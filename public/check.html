@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>접수 확인 — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<title>접수 확인 — 제1회 광주대학교 L‘AI’TY 경진대회</title>
 <link rel="icon" href="/img/emblem-green.png">
 <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -126,9 +126,44 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="stage2Panel" style="display:none;border-color:var(--gu-green);">
+        <h2><span class="n">🎤</span> 2차 발표평가</h2>
+        <p class="hint">1차 서면평가를 통과하셨습니다. 발표자료를 준비해 아래에 올려 주세요.</p>
+
+        <div class="field">
+          <span class="lb">발표자료 양식</span>
+          <p class="desc">양식을 내려받아 작성하신 뒤 제출해 주세요.</p>
+          <a class="dl-btn" href="javascript:void(0)" id="pptFormBtn">
+            <span class="ico">⬇</span>
+            <span class="txt">2차 발표자료 양식 내려받기<small>클릭하면 저장됩니다</small></span>
+          </a>
+        </div>
+
+        <div class="field">
+          <span class="lb">발표자료 제출</span>
+          <div class="filelist" id="curPpt"></div>
+          <label class="filebox" for="presentation" style="margin-top:10px;">
+            <div class="ico">📊</div>
+            <div class="t">발표자료 올리기 / 다시 올리기</div>
+            <div class="s">기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
+            <input type="file" id="presentation">
+          </label>
+          <div class="filelist" id="pptList"></div>
+          <div style="text-align:right;margin-top:12px;">
+            <button class="btn btn-green" id="pptSaveBtn">발표자료 제출</button>
+          </div>
+          <div class="msg" id="pptMsg" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <div class="panel" id="editPanel">
         <h2><span class="n">✎</span> 내용 수정</h2>
         <p class="hint">접수 기간 안에는 언제든 수정할 수 있습니다.</p>
+        <div class="notice-box" id="editClosed" style="display:none;margin-bottom:4px;">
+          <strong>접수 기간이 종료되어 신청 내용을 수정하실 수 없습니다.</strong>
+          <p style="margin:6px 0 0;">제출하신 내용은 위에서 확인하실 수 있습니다.</p>
+        </div>
+        <div id="editForms">
         <div class="field">
           <span class="lb">응모 분야</span>
           <div class="choices" id="e_catChoices"></div>
@@ -151,9 +186,10 @@
           <label>활용 사례 요약 (300자 이내)</label>
           <textarea id="e_summary" maxlength="300" style="min-height:150px;"></textarea>
         </div>
+        </div>
       </div>
 
-      <div class="submit-bar">
+      <div class="submit-bar" id="submitBar">
         <button class="btn btn-line btn-lg" id="logoutBtn">닫기</button>
         <button class="btn btn-green btn-lg" id="saveBtn">수정 내용 저장</button>
       </div>
@@ -168,13 +204,18 @@
 <script>
 (async function () {
   const c = await LAITY.mount('/check');
+  document.querySelectorAll('.maxsize').forEach((e) => { e.textContent = c.upload.maxFileSizeMB + 'MB'; });
   document.getElementById('propPeriod').textContent =
     `${c.schedule.applyOpen} ~ ${c.schedule.applyClose}`;
 
-  // 접수 기간이 아니면 업로드 칸을 숨깁니다.
+  // 접수 기간이 아니면 파일 업로드와 내용 수정을 모두 잠급니다.
   if (!LAITY.gates.open) {
     document.getElementById('reportForms').style.display = 'none';
     document.getElementById('reportClosed').style.display = '';
+    document.getElementById('editForms').style.display = 'none';
+    document.getElementById('editClosed').style.display = '';
+    document.getElementById('saveBtn').style.display = 'none';
+    document.querySelector('#editPanel .hint').style.display = 'none';
   }
 
   const msg = document.getElementById('msg');
@@ -183,8 +224,23 @@
 
   function val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
 
+  function pptFile(a) { return a.files && a.files.presentation; }
+
+  function renderStage2(a) {
+    const panel = document.getElementById('stage2Panel');
+    if (!a.passed1) { panel.style.display = 'none'; return; }
+    panel.style.display = '';
+    const f = pptFile(a);
+    document.getElementById('curPpt').innerHTML = f
+      ? `<div class="fileitem"><span>📊</span><span class="nm">${LAITY.esc(f.original)}</span>
+         <span class="sz">${LAITY.fmtSize(f.size)}</span>
+         <button type="button" onclick="dl('${f.id}')">받기</button></div>`
+      : `<div class="fileitem" style="color:var(--ink-3);">아직 제출된 발표자료가 없습니다.</div>`;
+  }
+
   function render(a) {
     cur = a;
+    renderStage2(a);
     document.getElementById('vNo').textContent = a.no;
     document.getElementById('vDate').textContent = LAITY.fmtDate(a.createdAt);
     document.getElementById('vUpd').textContent = LAITY.fmtDate(a.updatedAt);
@@ -235,6 +291,37 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ---------- 2차 발표자료 ---------- */
+  document.getElementById('pptFormBtn').onclick = () => {
+    LAITY.msg(document.getElementById('pptMsg'), 'warn',
+      '발표자료 양식은 준비 중입니다. 준비되는 대로 이 화면에서 내려받으실 수 있도록 안내드리겠습니다.');
+  };
+
+  document.getElementById('pptSaveBtn').onclick = async () => {
+    const box = document.getElementById('pptMsg');
+    LAITY.hideMsg(box);
+    const f = document.getElementById('presentation').files[0];
+    if (!f) return LAITY.msg(box, 'err', '제출하실 발표자료 파일을 선택해 주세요.');
+    const btn = document.getElementById('pptSaveBtn');
+    btn.disabled = true; btn.textContent = '제출 중...';
+    const fd = new FormData();
+    fd.append('no', auth.no);
+    fd.append('password', auth.password);
+    fd.append('presentation', f);
+    try {
+      const r = await fetch('/api/applications/presentation', { method: 'POST', body: fd });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error);
+      document.getElementById('presentation').value = '';
+      document.getElementById('pptList').innerHTML = '';
+      render(j.application);
+      LAITY.msg(box, 'ok', '발표자료가 제출되었습니다.');
+    } catch (e) {
+      LAITY.msg(box, 'err', e.message);
+    }
+    btn.disabled = false; btn.textContent = '발표자료 제출';
+  };
+
   window.dl = async function (fileId) {
     const r = await fetch('/api/applications/file', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -269,6 +356,7 @@
         <span class="sz">${LAITY.fmtSize(f.size)}</span></div>`).join('');
     });
   }
+  bindFile('presentation', 'pptList');
   bindFile('proposal', 'proposalList');
   bindFile('extras', 'extrasList');
 

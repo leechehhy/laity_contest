@@ -184,6 +184,13 @@ const CATEGORY_NAME = (key) => {
 };
 
 function publicView(row) {
+  // 1차 평가 점수는 참가자에게 공개하지 않습니다. (통과 여부만 알려 줍니다)
+  const { pwSalt, pwHash, score1, ...rest } = row;
+  return rest;
+}
+
+/** 관리자용 — 비밀번호만 빼고 1차 점수까지 그대로 내려 줍니다. */
+function adminView(row) {
   const { pwSalt, pwHash, ...rest } = row;
   return rest;
 }
@@ -258,7 +265,10 @@ app.post('/api/applications', async (req, res) => {
     files: {
       proposal: proposalFiles[0] ? await saveFile(proposalFiles[0]) : null,
       extras: await saveFiles(extraFiles),
+      presentation: null,
     },
+    score1: null,
+    passed1: false,
     pwSalt: salt,
     pwHash: hash,
   };
@@ -412,12 +422,34 @@ app.post('/api/applications/update', async (req, res) => {
   res.json({ ok: true, application: publicView(apps.find((r) => r.id === row.id)) });
 });
 
+/** 2차 발표자료 제출 — 1차 평가를 통과한 참가자만 가능합니다. */
+app.post('/api/applications/presentation', async (req, res) => {
+  const b = req.body;
+  const row = apps.find((r) => r.no === txt(b.no).toUpperCase());
+  if (!row || !U.verifyPassword(txt(b.password), row.pwSalt, row.pwHash)) {
+    return res.status(404).json({ ok: false, error: '접수번호 또는 비밀번호가 일치하지 않습니다.' });
+  }
+  if (!row.passed1) {
+    return res.status(403).json({ ok: false, error: '2차 발표평가 대상자만 제출하실 수 있습니다.' });
+  }
+  const files = req.files.presentation || [];
+  if (!files[0]) return res.status(400).json({ ok: false, error: '발표자료 파일을 선택해 주세요.' });
+  try { checkFiles(files); }
+  catch (e) { return res.status(400).json({ ok: false, error: e.message }); }
+
+  const next = Object.assign({}, row.files);
+  if (next.presentation) await removeStored(next.presentation);
+  next.presentation = await saveFile(files[0]);
+  await apps.update(row.id, { files: next });
+  res.json({ ok: true, application: publicView(apps.find((r) => r.id === row.id)) });
+});
+
 app.post('/api/applications/file', async (req, res) => {
   const row = apps.find((r) => r.no === txt(req.body.no).toUpperCase());
   if (!row || !U.verifyPassword(txt(req.body.password), row.pwSalt, row.pwHash)) {
     return res.status(404).json({ ok: false, error: '인증에 실패했습니다.' });
   }
-  const all = [row.files.proposal, ...(row.files.extras || [])].filter(Boolean);
+  const all = [row.files.proposal, row.files.presentation, ...(row.files.extras || [])].filter(Boolean);
   const meta = all.find((f) => f.id === req.body.fileId);
   if (!meta) return res.status(404).json({ ok: false, error: '파일을 찾을 수 없습니다.' });
   await sendDownload(res, meta);
@@ -510,9 +542,31 @@ app.post('/api/admin/settings', async (req, res) => {
   res.json({ ok: true, gates: computeGates() });
 });
 
+app.post('/api/admin/applications/review', async (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  const row = apps.find((r) => r.id === txt(req.body.id));
+  if (!row) return res.status(404).json({ ok: false, error: '신청 내역을 찾을 수 없습니다.' });
+  const patch = {};
+  if (req.body.score1 !== undefined) {
+    const v = txt(req.body.score1);
+    if (v === '') patch.score1 = null;
+    else {
+      const n = Number(v);
+      if (Number.isNaN(n) || n < 0 || n > 100) {
+        return res.status(400).json({ ok: false, error: '1차 점수는 0~100 사이 숫자로 입력해 주세요.' });
+      }
+      patch.score1 = n;
+    }
+  }
+  if (req.body.passed1 !== undefined) patch.passed1 = txt(req.body.passed1) === 'true';
+  await apps.update(row.id, patch);
+  const saved = apps.find((r) => r.id === row.id);
+  res.json({ ok: true, application: { id: saved.id, score1: saved.score1, passed1: saved.passed1 } });
+});
+
 app.get('/api/admin/applications', (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
-  res.json({ ok: true, applications: apps.all().sort((a, b) => a.seq - b.seq).map(publicView) });
+  res.json({ ok: true, applications: apps.all().sort((a, b) => a.seq - b.seq).map(adminView) });
 });
 
 app.get('/api/admin/questions', (req, res) => {
@@ -579,6 +633,7 @@ app.get('/api/admin/files.zip', async (req, res) => {
     const folder = U.safeName(`${row.no}_${row.leader.name}_${row.caseName}`);
     const list = [];
     if (row.files && row.files.proposal) list.push(['보고서_' + row.files.proposal.original, row.files.proposal]);
+    if (row.files && row.files.presentation) list.push(['발표자료_' + row.files.presentation.original, row.files.presentation]);
     ((row.files && row.files.extras) || []).forEach((f, i) => list.push([`증빙${i + 1}_` + f.original, f]));
     for (const [name, meta] of list) {
       const buf = await readStored(meta);
@@ -595,7 +650,8 @@ app.get('/api/admin/applications.xlsx', (req, res) => {
     ['접수번호', 16], ['접수일시', 18], ['참가구분', 10], ['팀명', 18], ['대표자', 10],
     ['소속(부서)', 20], ['연락처', 16], ['이메일', 26], ['팀원', 30],
     ['응모분야', 20], ['프로젝트명', 30], ['사용 AI 도구', 26], ['적용 업무', 24],
-    ['활용 사례 요약', 60], ['보고서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40], ['최종수정', 18],
+    ['활용 사례 요약', 60], ['보고서', 28], ['증빙자료 수', 12], ['증빙자료 목록', 40],
+    ['1차 점수', 10], ['1차 통과', 10], ['발표자료', 28], ['최종수정', 18],
   ].map(([header, width]) => ({ header, width }));
 
   const rows = apps.all().sort((a, b) => a.seq - b.seq).map((r) => [
@@ -606,6 +662,9 @@ app.get('/api/admin/applications.xlsx', (req, res) => {
     r.files && r.files.proposal ? r.files.proposal.original : '(미제출)',
     (r.files && r.files.extras ? r.files.extras.length : 0),
     (r.files && r.files.extras ? r.files.extras : []).map((f) => f.original).join(', '),
+    (r.score1 === null || r.score1 === undefined) ? '' : r.score1,
+    r.passed1 ? '통과' : '',
+    r.files && r.files.presentation ? r.files.presentation.original : '',
     U.fmtDateTime(r.updatedAt),
   ]);
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>관리자 — 제1회 광주대학교 L'AI'TY 경진대회</title>
+<title>관리자 — 제1회 광주대학교 L‘AI’TY 경진대회</title>
 <link rel="icon" href="/img/emblem-green.png">
 <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -51,6 +51,7 @@
 
       <div class="tabs">
         <button class="on" data-tab="apps">참가신청 목록</button>
+        <button data-tab="review">1차 평가 관리</button>
         <button data-tab="qna">질의응답 관리 <span id="qnaBadge" class="badge wait" style="display:none;margin-left:4px;"></span></button>
       </div>
 
@@ -84,6 +85,31 @@
         <p style="color:var(--ink-3);font-size:13.5px;margin-top:12px;">
           ※ 파일명을 클릭하면 개별 다운로드됩니다. ‘첨부파일 전체 ZIP’은 신청자별 폴더로 정리되어 내려받아집니다.
         </p>
+      </div>
+
+      <!-- 1차 평가 -->
+      <div id="tab-review" style="display:none;">
+        <div class="panel" style="padding:20px 26px;margin-bottom:18px;">
+          <p class="hint" style="margin:0;padding-left:0;">
+            1차 서면평가 점수를 입력하고, 2차 발표평가에 진출할 참가자를 체크한 뒤 <strong>저장</strong>을 눌러 주세요.
+            통과로 등록되면 해당 참가자의 ‘접수 확인’ 화면에 <strong>2차 발표자료 제출</strong> 항목이 나타납니다.
+          </p>
+          <div class="msg" id="rvMsg" style="margin-top:12px;"></div>
+        </div>
+        <div class="admin-bar">
+          <span style="font-weight:800;color:var(--gu-deep);">통과 <span id="cntPass">0</span>팀 · 전체 <span id="cntAllApps">0</span>팀</span>
+          <button class="btn btn-green btn-sm" id="rvSaveAll" style="margin-left:auto;">전체 저장</button>
+        </div>
+        <div class="table-box">
+          <table class="list">
+            <thead><tr>
+              <th style="width:120px;">접수번호</th><th style="width:110px;">참가자</th>
+              <th style="width:130px;">소속</th><th>프로젝트명</th>
+              <th style="width:110px;">1차 점수</th><th style="width:90px;">2차 진출</th>
+            </tr></thead>
+            <tbody id="rvRows"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Q&A -->
@@ -199,13 +225,60 @@
     LAITY.msg(box, 'ok', `${MODE_LABEL[mode]} 로 저장했습니다. 현재 상태: ${j.gates.open ? '접수 중' : '마감'}`);
   }
 
+  /* ---------- 1차 평가 관리 ---------- */
+  function drawReview() {
+    const list = APPS.slice().sort((a, b) => (a.no > b.no ? 1 : -1));
+    document.getElementById('cntAllApps').textContent = list.length;
+    document.getElementById('cntPass').textContent = list.filter((a) => a.passed1).length;
+    document.getElementById('rvRows').innerHTML = list.map((a) => `
+      <tr data-id="${a.id}">
+        <td><b>${LAITY.esc(a.no)}</b></td>
+        <td>${LAITY.esc(a.leader.name)}</td>
+        <td>${LAITY.esc(a.leader.dept || '')}</td>
+        <td>${LAITY.esc(a.caseName || '')}</td>
+        <td><input type="text" class="rv-score" inputmode="numeric" value="${a.score1 == null ? '' : a.score1}"
+              placeholder="0~100" style="width:84px;text-align:center;padding:7px 8px;"></td>
+        <td style="text-align:center;">
+          <input type="checkbox" class="rv-pass" ${a.passed1 ? 'checked' : ''} style="width:20px;height:20px;">
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:40px;">접수된 신청이 없습니다.</td></tr>';
+  }
+
+  document.getElementById('rvSaveAll').onclick = async () => {
+    const box = document.getElementById('rvMsg');
+    LAITY.hideMsg(box);
+    const rows = [...document.querySelectorAll('#rvRows tr[data-id]')];
+    const btn = document.getElementById('rvSaveAll');
+    btn.disabled = true; btn.textContent = '저장 중...';
+    let ok = 0, err = '';
+    for (const tr of rows) {
+      const body = {
+        id: tr.dataset.id,
+        score1: tr.querySelector('.rv-score').value.trim(),
+        passed1: String(tr.querySelector('.rv-pass').checked),
+      };
+      const r = await fetch('/api/admin/applications/review', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+      const j = await r.json();
+      if (j.ok) ok++; else err = j.error || '저장에 실패했습니다.';
+    }
+    btn.disabled = false; btn.textContent = '전체 저장';
+    if (err) { LAITY.msg(box, 'err', err); return; }
+    await loadApps();
+    drawReview();
+    LAITY.msg(box, 'ok', `${ok}건을 저장했습니다. 2차 진출 ${document.getElementById('cntPass').textContent}팀.`);
+  };
+
   /* ---------- 탭 전환 ---------- */
   document.querySelectorAll('.tabs button').forEach((b) => {
     b.onclick = () => {
       document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('on'));
       b.classList.add('on');
       document.getElementById('tab-apps').style.display = b.dataset.tab === 'apps' ? '' : 'none';
+      document.getElementById('tab-review').style.display = b.dataset.tab === 'review' ? '' : 'none';
       document.getElementById('tab-qna').style.display = b.dataset.tab === 'qna' ? '' : 'none';
+      if (b.dataset.tab === 'review') drawReview();
     };
   });
 
@@ -222,7 +295,7 @@
       <div class="stat"><div class="k">총 접수</div><div class="v">${total}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> 건</span></div></div>
       <div class="stat"><div class="k">개인 / 팀</div><div class="v">${total - teams} / ${teams}</div></div>
       <div class="stat"><div class="k">보고서 제출</div><div class="v">${withProp}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>
-      <div class="stat"><div class="k">증빙자료 제출</div><div class="v">${withExtra}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> / ${total}</span></div></div>`;
+      <div class="stat"><div class="k">2차 진출</div><div class="v">${APPS.filter((a) => a.passed1).length}<span style="font-size:15px;font-weight:600;color:var(--ink-3);"> 팀</span></div></div>`;
 
     renderApps();
   }
