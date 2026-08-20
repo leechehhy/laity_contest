@@ -96,63 +96,35 @@
 
         <div class="notice-box" id="reportClosed" style="display:none;margin-bottom:16px;">
           <strong>접수 기간이 종료되어 파일을 변경하실 수 없습니다.</strong>
-          <p style="margin:6px 0 0;">이미 제출하신 자료는 아래에서 내려받아 확인하실 수 있습니다.</p>
+          <p style="margin:6px 0 0;">제출하신 파일 이름 옆의 <strong>[받기]</strong> 를 누르면 내려받아 확인하실 수 있습니다.</p>
         </div>
 
-        <div id="reportForms">
         <div class="field">
           <span class="lb">AI 활용 사례 보고서</span>
           <div class="filelist" id="curProposal"></div>
-          <label class="filebox" for="proposal" style="margin-top:10px;">
-            <div class="ico">📄</div>
-            <div class="t">보고서 다시 올리기</div>
-            <div class="s">기존 파일이 있으면 교체됩니다</div>
-            <input type="file" id="proposal">
-          </label>
-          <div class="filelist" id="proposalList"></div>
+          <div id="upProposal">
+            <label class="filebox" for="proposal" style="margin-top:10px;">
+              <div class="ico">📄</div>
+              <div class="t">보고서 다시 올리기</div>
+              <div class="s">기존 파일이 있으면 교체됩니다</div>
+              <input type="file" id="proposal">
+            </label>
+            <div class="filelist" id="proposalList"></div>
+          </div>
         </div>
 
         <div class="field">
           <span class="lb">증빙자료 (선택)</span>
           <div class="filelist" id="curExtras"></div>
-          <label class="filebox" for="extras" style="margin-top:10px;">
-            <div class="ico">📎</div>
-            <div class="t">증빙자료 추가하기</div>
-            <div class="s">여러 개 선택할 수 있습니다</div>
-            <input type="file" id="extras" multiple>
-          </label>
-          <div class="filelist" id="extrasList"></div>
-        </div>
-        </div>
-      </div>
-
-      <div class="panel" id="stage2Panel" style="display:none;border-color:var(--gu-green);">
-        <h2><span class="n">🎤</span> 2차 발표평가</h2>
-        <p class="hint">1차 서면평가를 통과하셨습니다. 발표자료를 준비해 아래에 올려 주세요.</p>
-
-        <div class="field">
-          <span class="lb">발표자료 양식</span>
-          <p class="desc">양식을 내려받아 작성하신 뒤 제출해 주세요.</p>
-          <a class="dl-btn" href="javascript:void(0)" id="pptFormBtn">
-            <span class="ico">⬇</span>
-            <span class="txt">2차 발표자료 양식 내려받기<small>클릭하면 저장됩니다</small></span>
-          </a>
-        </div>
-
-        <div class="field">
-          <span class="lb">발표자료 제출</span>
-          <div class="filelist" id="curPpt"></div>
-          <label class="filebox" for="presentation" style="margin-top:10px;">
-            <div class="ico">📊</div>
-            <div class="t">발표자료 올리기 / 다시 올리기</div>
-            <div class="s">기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
-            <input type="file" id="presentation">
-          </label>
-          <div class="filelist" id="pptList"></div>
-          <div style="text-align:right;margin-top:12px;">
-            <button class="btn btn-green" id="pptSaveBtn">발표자료 제출</button>
+          <div id="upExtras">
+            <label class="filebox" for="extras" style="margin-top:10px;">
+              <div class="ico">📎</div>
+              <div class="t">증빙자료 추가하기</div>
+              <div class="s">여러 개 선택할 수 있습니다</div>
+              <input type="file" id="extras" multiple>
+            </label>
+            <div class="filelist" id="extrasList"></div>
           </div>
-          <div class="msg" id="pptMsg" style="margin-top:12px;"></div>
         </div>
       </div>
 
@@ -189,6 +161,36 @@
         </div>
       </div>
 
+      <div class="panel" id="stage2Panel" style="display:none;border-color:var(--gu-green);">
+        <h2><span class="n">🎤</span> 2차 발표평가</h2>
+        <p class="hint">1차 서면평가를 통과하셨습니다. 발표자료를 준비해 아래에 올려 주세요.</p>
+
+        <div class="field">
+          <span class="lb">발표자료 양식</span>
+          <p class="desc">양식을 내려받아 작성하신 뒤 제출해 주세요.</p>
+          <a class="dl-btn" href="javascript:void(0)" id="pptFormBtn">
+            <span class="ico">⬇</span>
+            <span class="txt">2차 발표자료 양식 내려받기<small>클릭하면 저장됩니다</small></span>
+          </a>
+        </div>
+
+        <div class="field">
+          <span class="lb">발표자료 제출</span>
+          <div class="filelist" id="curPpt"></div>
+          <label class="filebox" for="presentation" style="margin-top:10px;">
+            <div class="ico">📊</div>
+            <div class="t">발표자료 올리기 / 다시 올리기</div>
+            <div class="s">기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
+            <input type="file" id="presentation">
+          </label>
+          <div class="filelist" id="pptList"></div>
+          <div style="text-align:right;margin-top:12px;">
+            <button class="btn btn-green" id="pptSaveBtn">발표자료 제출</button>
+          </div>
+          <div class="msg" id="pptMsg" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
       <div class="submit-bar" id="submitBar">
         <button class="btn btn-line btn-lg" id="logoutBtn">닫기</button>
         <button class="btn btn-green btn-lg" id="saveBtn">수정 내용 저장</button>
@@ -210,7 +212,8 @@
 
   // 접수 기간이 아니면 파일 업로드와 내용 수정을 모두 잠급니다.
   if (!LAITY.gates.open) {
-    document.getElementById('reportForms').style.display = 'none';
+    document.getElementById('upProposal').style.display = 'none';
+    document.getElementById('upExtras').style.display = 'none';
     document.getElementById('reportClosed').style.display = '';
     document.getElementById('editForms').style.display = 'none';
     document.getElementById('editClosed').style.display = '';
@@ -268,7 +271,7 @@
       ? ex.map((f) => `<div class="fileitem"><span>📎</span><span class="nm">${LAITY.esc(f.original)}</span>
           <span class="sz">${LAITY.fmtSize(f.size)}</span>
           <button type="button" onclick="dl('${f.id}')">받기</button>
-          <button type="button" onclick="rm('${f.id}', this)">삭제</button></div>`).join('')
+          ${LAITY.gates.open ? `<button type="button" onclick="rm('${f.id}', this)">삭제</button>` : ''}</div>`).join('')
       : `<div class="fileitem" style="color:var(--ink-3);">아직 제출된 증빙자료가 없습니다.</div>`;
 
     ['caseName', 'aiTools', 'targetTask', 'summary', 'teamName', 'categoryEtc'].forEach((k) => val('e_' + k, a[k]));
