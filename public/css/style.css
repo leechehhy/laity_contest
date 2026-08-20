@@ -630,3 +630,16 @@ table.adm .none { color: var(--ink-3); }
   cursor: pointer; font-size: 15px; color: var(--ink-3); transition: .14s;
 }
 .fileitem .icon-btn:hover { border-color: var(--err); background: #fdf2f1; }
+
+/* 시상 요약 (총 상금 / 선발 규모) */
+.award-meta { display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 0; }
+.award-meta div { display: flex; align-items: baseline; gap: 12px; }
+.award-meta dt {
+  font-size: 15.5px; font-weight: 800; color: var(--gu-green-d); letter-spacing: -.02em;
+  margin: 0; position: relative; padding-left: 17px;
+}
+.award-meta dt::before {
+  content: ''; position: absolute; left: 0; top: 8px;
+  width: 9px; height: 9px; border-radius: 3px; background: var(--gu-green);
+}
+.award-meta dd { margin: 0; font-size: 19px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.03em; }
