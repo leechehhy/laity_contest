@@ -622,3 +622,11 @@ table.adm .none { color: var(--ink-3); }
 .award.gold   { border-color: #f0b429; border-width: 2.5px; background: linear-gradient(180deg, #fffbf0, #fff); }
 .award.silver { border-color: #c3cbd3; }
 .award.bronze { border-color: #d9a877; }
+
+/* 파일 목록의 휴지통 버튼 */
+.fileitem .icon-btn {
+  flex: none; width: 32px; height: 32px; padding: 0; line-height: 1;
+  border: 1.5px solid var(--line); border-radius: 9px; background: #fff;
+  cursor: pointer; font-size: 15px; color: var(--ink-3); transition: .14s;
+}
+.fileitem .icon-btn:hover { border-color: var(--err); background: #fdf2f1; }

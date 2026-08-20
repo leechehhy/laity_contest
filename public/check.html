@@ -303,7 +303,7 @@
   document.getElementById('pptSaveBtn').onclick = async () => {
     const box = document.getElementById('pptMsg');
     LAITY.hideMsg(box);
-    const f = document.getElementById('presentation').files[0];
+    const f = pickPpt.files()[0];
     if (!f) return LAITY.msg(box, 'err', '제출하실 발표자료 파일을 선택해 주세요.');
     const btn = document.getElementById('pptSaveBtn');
     btn.disabled = true; btn.textContent = '제출 중...';
@@ -315,8 +315,7 @@
       const r = await fetch('/api/applications/presentation', { method: 'POST', body: fd });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
-      document.getElementById('presentation').value = '';
-      document.getElementById('pptList').innerHTML = '';
+      pickPpt.clear();
       render(j.application);
       LAITY.msg(box, 'ok', '발표자료가 제출되었습니다.');
     } catch (e) {
@@ -350,18 +349,45 @@
     btn.disabled = true;
   };
 
-  function bindFile(inputId, listId) {
+  /**
+   * 파일 선택 상자.
+   *  - multi:true  이면 고를 때마다 목록에 쌓입니다. (기존 선택이 지워지지 않음)
+   *  - 목록의 휴지통을 누르면 그 파일만 빠집니다.
+   *  반환된 객체의 files() 로 현재 선택 목록을 가져옵니다.
+   */
+  function bindFile(inputId, listId, multi) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
-    input.addEventListener('change', () => {
-      list.innerHTML = Array.from(input.files || []).map((f) => `
+    let picked = [];
+
+    function draw() {
+      list.innerHTML = picked.map((f, i) => `
         <div class="fileitem"><span>➕</span><span class="nm">${LAITY.esc(f.name)}</span>
-        <span class="sz">${LAITY.fmtSize(f.size)}</span></div>`).join('');
+        <span class="sz">${LAITY.fmtSize(f.size)}</span>
+        <button type="button" class="icon-btn" title="목록에서 빼기" data-i="${i}">🗑</button></div>`).join('');
+      list.querySelectorAll('.icon-btn').forEach((btn) => {
+        btn.onclick = () => { picked.splice(Number(btn.dataset.i), 1); draw(); };
+      });
+    }
+
+    input.addEventListener('change', () => {
+      const add = Array.from(input.files || []);
+      if (multi) {
+        for (const f of add) {
+          if (!picked.some((x) => x.name === f.name && x.size === f.size)) picked.push(f);
+        }
+      } else {
+        picked = add.slice(0, 1);
+      }
+      input.value = '';   // 같은 파일을 다시 고를 수 있도록 비웁니다
+      draw();
     });
+
+    return { files: () => picked, clear: () => { picked = []; draw(); } };
   }
-  bindFile('presentation', 'pptList');
-  bindFile('proposal', 'proposalList');
-  bindFile('extras', 'extrasList');
+  const pickPpt = bindFile('presentation', 'pptList');
+  const pickProposal = bindFile('proposal', 'proposalList');
+  const pickExtras = bindFile('extras', 'extrasList', true);
 
   document.getElementById('loginBtn').onclick = async () => {
     LAITY.hideMsg(msg);
@@ -464,19 +490,17 @@
     fd.append('leaderEmail', document.getElementById('e_leaderEmail').value);
     if (removeExtras.length) fd.append('removeExtras', JSON.stringify(removeExtras));
 
-    const p = document.getElementById('proposal').files[0];
+    const p = pickProposal.files()[0];
     if (p) fd.append('proposal', p);
-    Array.from(document.getElementById('extras').files).forEach((f) => fd.append('extras', f));
+    pickExtras.files().forEach((f) => fd.append('extras', f));
 
     try {
       const r = await fetch('/api/applications/update', { method: 'POST', body: fd });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
       removeExtras.length = 0;
-      document.getElementById('proposal').value = '';
-      document.getElementById('extras').value = '';
-      document.getElementById('proposalList').innerHTML = '';
-      document.getElementById('extrasList').innerHTML = '';
+      pickProposal.clear();
+      pickExtras.clear();
       render(j.application);
       LAITY.msg(msg, 'ok', '수정 내용이 저장되었습니다.');
     } catch (e) {

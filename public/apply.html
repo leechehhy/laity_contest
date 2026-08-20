@@ -294,28 +294,44 @@
     ['ag1','ag2','ag3','ag4','ag5','ag6','agPrivacy'].forEach((id) => { document.getElementById(id).checked = true; });
   };
 
-  function bindFile(inputId, listId) {
+  /**
+   * 파일 선택 상자.
+   *  - multi:true  이면 고를 때마다 목록에 쌓입니다. (기존 선택이 지워지지 않음)
+   *  - 목록의 휴지통을 누르면 그 파일만 빠집니다.
+   */
+  function bindFile(inputId, listId, multi) {
     const input = document.getElementById(inputId);
     const list = document.getElementById(listId);
-    input.addEventListener('change', () => {
-      const files = Array.from(input.files || []);
-      list.innerHTML = files.map((f, i) => `
+    let picked = [];
+
+    function draw() {
+      list.innerHTML = picked.map((f, i) => `
         <div class="fileitem"><span>📎</span><span class="nm">${LAITY.esc(f.name)}</span>
         <span class="sz">${LAITY.fmtSize(f.size)}</span>
-        <button type="button" data-i="${i}">삭제</button></div>`).join('');
-      list.querySelectorAll('button').forEach((b) => {
-        b.onclick = () => {
-          const dt = new DataTransfer();
-          files.forEach((f, i) => { if (i !== Number(b.dataset.i)) dt.items.add(f); });
-          input.files = dt.files;
-          input.dispatchEvent(new Event('change'));
-        };
+        <button type="button" class="icon-btn" title="목록에서 빼기" data-i="${i}">🗑</button></div>`).join('');
+      list.querySelectorAll('.icon-btn').forEach((btn) => {
+        btn.onclick = () => { picked.splice(Number(btn.dataset.i), 1); draw(); };
       });
+    }
+
+    input.addEventListener('change', () => {
+      const add = Array.from(input.files || []);
+      if (multi) {
+        for (const f of add) {
+          if (!picked.some((x) => x.name === f.name && x.size === f.size)) picked.push(f);
+        }
+      } else {
+        picked = add.slice(0, 1);
+      }
+      input.value = '';
+      draw();
     });
+
+    return { files: () => picked, clear: () => { picked = []; draw(); } };
   }
 
-  bindFile('proposal', 'proposalList');
-  bindFile('extras', 'extrasList');
+  const pickProposal = bindFile('proposal', 'proposalList');
+  const pickExtras = bindFile('extras', 'extrasList', true);
 
   const form = document.getElementById('applyForm');
   const msg = document.getElementById('msg');
@@ -364,9 +380,9 @@
 
 
     btn.disabled = true; btn.textContent = '제출 중입니다...';
-    const pf = document.getElementById('proposal').files[0];
+    const pf = pickProposal.files()[0];
     if (pf) fd.append('proposal', pf);
-    Array.from(document.getElementById('extras').files).forEach((f) => fd.append('extras', f));
+    pickExtras.files().forEach((f) => fd.append('extras', f));
 
     try {
       const r = await fetch('/api/applications', { method: 'POST', body: fd });
