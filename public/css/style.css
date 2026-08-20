@@ -385,6 +385,7 @@ input::placeholder, textarea::placeholder { color: #a9b6ac; }
 .check-line label { line-height: 1.6; }
 
 .filebox {
+  display: block;
   border: 2px dashed #c2d9c6; border-radius: var(--radius-sm); padding: 22px; text-align: center;
   background: var(--gu-green-xl); transition: .14s; cursor: pointer;
 }
