@@ -390,6 +390,11 @@ input::placeholder, textarea::placeholder { color: #a9b6ac; }
   background: var(--gu-green-xl); transition: .14s; cursor: pointer;
 }
 .filebox:hover { border-color: var(--gu-green); background: #ebf3da; }
+.filebox.drag {
+  border-color: var(--gu-green-d); border-style: solid; background: #e3efcd;
+  box-shadow: 0 0 0 3px rgba(158, 189, 59, .28);
+}
+.filebox.drag .ico, .filebox.drag .t, .filebox.drag .s { pointer-events: none; }
 .filebox input[type=file] { display: none; }
 .filebox .ico { font-size: 24px; }
 .filebox .t { font-weight: 800; margin-top: 6px; font-size: 15px; color: var(--gu-deep); }

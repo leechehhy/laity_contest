@@ -106,7 +106,7 @@
             <label class="filebox" for="proposal" style="margin-top:10px;">
               <div class="ico">📄</div>
               <div class="t">보고서 다시 올리기</div>
-              <div class="s">기존 파일이 있으면 교체됩니다</div>
+              <div class="s">클릭하거나 파일을 이곳에 끌어다 놓으세요 · 기존 파일이 있으면 교체됩니다</div>
               <input type="file" id="proposal">
             </label>
             <div class="filelist" id="proposalList"></div>
@@ -120,7 +120,7 @@
             <label class="filebox" for="extras" style="margin-top:10px;">
               <div class="ico">📎</div>
               <div class="t">증빙자료 추가하기</div>
-              <div class="s">여러 개 선택할 수 있습니다</div>
+              <div class="s">클릭하거나 파일을 이곳에 끌어다 놓으세요 · 여러 개도 가능합니다</div>
               <input type="file" id="extras" multiple>
             </label>
             <div class="filelist" id="extrasList"></div>
@@ -176,7 +176,7 @@
           <label class="filebox" for="presentation" style="margin-top:10px;">
             <div class="ico">📊</div>
             <div class="t">발표자료 올리기 / 다시 올리기</div>
-            <div class="s">기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
+            <div class="s">클릭하거나 파일을 이곳에 끌어다 놓으세요 · 기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
             <input type="file" id="presentation">
           </label>
           <div class="filelist" id="pptList"></div>
@@ -361,8 +361,9 @@
       });
     }
 
-    input.addEventListener('change', () => {
-      const add = Array.from(input.files || []);
+    function addFiles(fs) {
+      const add = Array.from(fs || []);
+      if (!add.length) return;
       if (multi) {
         for (const f of add) {
           if (!picked.some((x) => x.name === f.name && x.size === f.size)) picked.push(f);
@@ -370,12 +371,47 @@
       } else {
         picked = add.slice(0, 1);
       }
-      input.value = '';   // 같은 파일을 다시 고를 수 있도록 비웁니다
       draw();
+    }
+
+    input.addEventListener('change', () => {
+      addFiles(input.files);
+      input.value = '';   // 같은 파일을 다시 고를 수 있도록 비웁니다
     });
+
+    /* 폴더에서 파일을 끌어다 놓아도 올릴 수 있게 합니다 */
+    const zone = input.closest('.filebox');
+    if (zone) {
+      let depth = 0;
+      const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
+      const off = () => { depth = 0; zone.classList.remove('drag'); };
+      zone.addEventListener('dragenter', (e) => { stop(e); depth += 1; zone.classList.add('drag'); });
+      zone.addEventListener('dragover', (e) => { stop(e); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; });
+      zone.addEventListener('dragleave', (e) => { stop(e); depth -= 1; if (depth <= 0) off(); });
+      zone.addEventListener('drop', (e) => {
+        stop(e); off();
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        const fs = [];
+        if (dt.items && dt.items.length) {
+          for (const it of dt.items) {
+            if (it.kind !== 'file') continue;
+            const entry = it.webkitGetAsEntry ? it.webkitGetAsEntry() : null;
+            if (entry && entry.isDirectory) continue;   // 폴더째로 놓은 것은 제외
+            const f = it.getAsFile();
+            if (f) fs.push(f);
+          }
+        } else {
+          for (const f of Array.from(dt.files || [])) fs.push(f);
+        }
+        addFiles(fs);
+      });
+    }
 
     return { files: () => picked, clear: () => { picked = []; draw(); } };
   }
+
+  ['dragover', 'drop'].forEach((ev) => window.addEventListener(ev, (e) => e.preventDefault()));
   const pickPpt = bindFile('presentation', 'pptList');
   const pickProposal = bindFile('proposal', 'proposalList');
   const pickExtras = bindFile('extras', 'extrasList', true);
