@@ -166,12 +166,8 @@
         <p class="hint">1차 서면평가를 통과하셨습니다. 발표자료를 준비해 아래에 올려 주세요.</p>
 
         <div class="field">
-          <span class="lb">발표자료 양식</span>
-          <p class="desc">양식을 내려받아 작성하신 뒤 제출해 주세요.</p>
-          <a class="dl-btn" href="javascript:void(0)" id="pptFormBtn">
-            <span class="ico">⬇</span>
-            <span class="txt">2차 발표자료 양식 내려받기<small>클릭하면 저장됩니다</small></span>
-          </a>
+          <span class="lb">발표자료 안내</span>
+          <p class="desc">발표는 <b>10분 이내</b>로 진행됩니다. 구성과 분량은 자유롭게 정하시되, 10분 안에 발표하실 수 있도록 자료를 준비해 주세요.</p>
         </div>
 
         <div class="field">
@@ -295,11 +291,6 @@
   }
 
   /* ---------- 2차 발표자료 ---------- */
-  document.getElementById('pptFormBtn').onclick = () => {
-    LAITY.msg(document.getElementById('pptMsg'), 'warn',
-      '발표자료 양식은 준비 중입니다. 준비되는 대로 이 화면에서 내려받으실 수 있도록 안내드리겠습니다.');
-  };
-
   document.getElementById('pptSaveBtn').onclick = async () => {
     const box = document.getElementById('pptMsg');
     LAITY.hideMsg(box);
