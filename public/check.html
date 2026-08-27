@@ -82,6 +82,8 @@
 
     <!-- 조회 결과 -->
     <div id="viewArea" style="display:none;">
+      <div id="resultBanner"></div>
+
       <div class="panel">
         <h2><span class="n">✓</span> <span id="vNo"></span> 접수 내역</h2>
         <p class="hint">접수일시 <span id="vDate"></span> · 최종수정 <span id="vUpd"></span></p>
@@ -167,7 +169,7 @@
 
         <div class="field">
           <span class="lb">발표자료 안내</span>
-          <p class="desc">발표는 <b>10분 이내</b>로 진행됩니다. 구성과 분량은 자유롭게 정하시되, 10분 안에 발표하실 수 있도록 자료를 준비해 주세요.</p>
+          <p class="desc">발표는 <b>PT 발표 5분 + 질의응답 5분</b>, 총 10분으로 진행됩니다. 자료의 형식과 분량은 자유롭게 정하시되, <b>5분 안에 발표하실 수 있도록</b> 준비해 주세요.</p>
         </div>
 
         <div class="field">
@@ -225,9 +227,86 @@
 
   function pptFile(a) { return a.files && a.files.presentation; }
 
+  /* ---------- 1차 결과 안내 (관리자가 결과를 공개한 뒤에만 보입니다) ---------- */
+  let cheered = false;
+
+  function renderResult(a) {
+    const box = document.getElementById('resultBanner');
+    if (!LAITY.gates.stage1) { box.innerHTML = ''; return; }
+
+    if (a.passed1) {
+      box.innerHTML = `
+        <div class="rbox pass">
+          <div class="rico">🎉</div>
+          <h3>축하드립니다! <b>2차 발표평가</b>에 진출하셨습니다.</h3>
+          <p>1차 서면평가를 통과하셨습니다. 이 화면 <b>맨 아래 ‘2차 발표평가’</b> 항목에서
+             발표자료를 준비해 제출해 주세요.</p>
+          <button type="button" class="btn btn-primary" id="goStage2">2차 발표자료 제출하러 가기 ↓</button>
+        </div>`;
+      document.getElementById('goStage2').onclick = () => {
+        document.getElementById('stage2Panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      if (!cheered) { cheered = true; confetti(); }
+    } else {
+      box.innerHTML = `
+        <div class="rbox miss">
+          <div class="rico">🌱</div>
+          <h3>참여해 주셔서 진심으로 감사드립니다.</h3>
+          <p>아쉽게도 이번 2차 발표평가 진출은 어렵게 되었습니다.
+             보내 주신 사례 하나하나가 우리 대학 행정에 큰 자산이 되었습니다.
+             앞으로도 변함없는 관심과 참여를 부탁드립니다.</p>
+        </div>`;
+    }
+  }
+
+  /* 종이꽃가루 — 외부 라이브러리 없이 캔버스로 직접 그립니다 */
+  function confetti() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = document.createElement('canvas');
+    cv.className = 'confetti-layer';
+    document.body.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = cv.width = innerWidth * dpr, H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px';
+
+    const COLORS = ['#9ebd3b', '#00512a', '#ee8022', '#f8d04f', '#71bbea', '#f4a0b4'];
+    const bits = [];
+    for (let i = 0; i < 130; i++) {
+      bits.push({
+        x: (0.1 + Math.random() * 0.8) * W,
+        y: -Math.random() * H * 0.5,
+        w: (6 + Math.random() * 7) * dpr,
+        h: (9 + Math.random() * 10) * dpr,
+        vx: (Math.random() - 0.5) * 2.2 * dpr,
+        vy: (2.2 + Math.random() * 3.4) * dpr,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.24,
+        c: COLORS[i % COLORS.length],
+      });
+    }
+
+    const started = Date.now();
+    (function tick() {
+      const t = Date.now() - started;
+      ctx.clearRect(0, 0, W, H);
+      for (const b of bits) {
+        b.x += b.vx; b.y += b.vy; b.vy += 0.045 * dpr; b.rot += b.vr;
+        ctx.save();
+        ctx.translate(b.x, b.y); ctx.rotate(b.rot);
+        ctx.globalAlpha = t > 3400 ? Math.max(0, 1 - (t - 3400) / 900) : 1;
+        ctx.fillStyle = b.c;
+        ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+        ctx.restore();
+      }
+      if (t < 4300) requestAnimationFrame(tick);
+      else cv.remove();
+    })();
+  }
+
   function renderStage2(a) {
     const panel = document.getElementById('stage2Panel');
-    if (!a.passed1) { panel.style.display = 'none'; return; }
+    if (!LAITY.gates.stage1 || !a.passed1) { panel.style.display = 'none'; return; }
     panel.style.display = '';
     const f = pptFile(a);
     document.getElementById('curPpt').innerHTML = f
@@ -239,6 +318,7 @@
 
   function render(a) {
     cur = a;
+    renderResult(a);
     renderStage2(a);
     document.getElementById('vNo').textContent = a.no;
     document.getElementById('vDate').textContent = LAITY.fmtDate(a.createdAt);

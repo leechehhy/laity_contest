@@ -648,3 +648,54 @@ table.adm .none { color: var(--ink-3); }
   width: 9px; height: 9px; border-radius: 3px; background: var(--gu-green);
 }
 .award-meta dd { margin: 0; font-size: 19px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.03em; }
+
+/* ---------- 1차 결과 안내 배너 ---------- */
+.confetti-layer {
+  position: fixed; inset: 0; z-index: 999; pointer-events: none;
+}
+
+.rbox {
+  border-radius: var(--radius); padding: 30px 28px; margin-bottom: 18px; text-align: center;
+  box-shadow: var(--shadow); border: 1px solid transparent;
+  animation: rbox-in .5s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+@keyframes rbox-in {
+  from { opacity: 0; transform: translateY(-12px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .rbox { animation: none; } }
+
+.rbox .rico { font-size: 42px; line-height: 1; }
+.rbox h3 { margin: 12px 0 0; font-size: 22px; letter-spacing: -.03em; }
+.rbox p  { margin: 10px auto 0; max-width: 640px; font-size: 15.5px; line-height: 1.75; }
+.rbox .btn { margin-top: 20px; }
+
+.rbox.pass {
+  background: linear-gradient(150deg, #f2f7e4 0%, #fff8e8 100%);
+  border-color: rgba(158, 189, 59, .55);
+}
+.rbox.pass h3 { color: var(--gu-deep); }
+.rbox.pass h3 b { color: var(--mas-orange-d); }
+.rbox.pass p { color: var(--ink-2); }
+
+.rbox.miss { background: var(--bg-soft); border-color: var(--line); box-shadow: var(--shadow-sm); }
+.rbox.miss h3 { color: var(--ink); font-size: 19px; }
+.rbox.miss p { color: var(--ink-2); font-size: 15px; }
+
+/* ---------- 관리자 : 1차 결과 공개 스위치 ---------- */
+.pub-row {
+  margin-top: 16px; padding: 15px 18px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--bg-soft); display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.pub-row.on { border-color: var(--gu-green); background: var(--gu-green-xl); }
+.pub-row .pub-txt { flex: 1 1 320px; }
+.pub-row .pub-txt strong { display: block; color: var(--gu-deep); font-size: 15px; }
+.pub-row .pub-txt span { display: block; margin-top: 3px; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.pub-btn {
+  flex: none; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-family: inherit;
+  font-size: 14.5px; font-weight: 800; border: 2px solid var(--line); background: #fff; color: var(--ink-2);
+  transition: .15s;
+}
+.pub-btn:hover { border-color: var(--ink-3); }
+.pub-btn.on { background: var(--gu-deep); border-color: var(--gu-deep); color: #fff; }
+

@@ -158,13 +158,27 @@ async function saveGateMode(mode) {
   else await settings.insert({ id: U.randomId(), mode });
 }
 
+/* 1차 평가 결과 공개 여부.
+ * 켜기 전까지는 참가자 화면에 통과·미통과 안내가 전혀 나타나지 않습니다.
+ * (채점 도중에 결과가 미리 새어 나가지 않도록 하기 위한 잠금장치입니다) */
+function stage1Open() {
+  const row = settings.all()[0] || {};
+  return row.stage1 === true;
+}
+
+async function saveStage1(on) {
+  const row = settings.all()[0];
+  if (row) await settings.update(row.id, { stage1: !!on });
+  else await settings.insert({ id: U.randomId(), stage1: !!on });
+}
+
 function computeGates() {
   const mode = gateMode();
   const s = CONFIG.schedule || {};
   const today = U.todayISO();
   const inRange = !!s.applyOpen && !!s.applyClose && today >= s.applyOpen && today <= s.applyClose;
   const open = mode === 'open' ? true : mode === 'closed' ? false : inRange;
-  return { open, mode };
+  return { open, mode, stage1: stage1Open() };
 }
 
 /* ---------------------------------------------------------------
@@ -429,7 +443,7 @@ app.post('/api/applications/presentation', async (req, res) => {
   if (!row || !U.verifyPassword(txt(b.password), row.pwSalt, row.pwHash)) {
     return res.status(404).json({ ok: false, error: '접수번호 또는 비밀번호가 일치하지 않습니다.' });
   }
-  if (!row.passed1) {
+  if (!stage1Open() || !row.passed1) {
     return res.status(403).json({ ok: false, error: '2차 발표평가 대상자만 제출하실 수 있습니다.' });
   }
   const files = req.files.presentation || [];
@@ -536,9 +550,14 @@ app.get('/api/admin/settings', (req, res) => {
 
 app.post('/api/admin/settings', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
-  const v = txt(req.body.mode);
-  if (!GATE_MODES.includes(v)) return res.status(400).json({ ok: false, error: '알 수 없는 설정값입니다.' });
-  await saveGateMode(v);
+  if (req.body.mode !== undefined) {
+    const v = txt(req.body.mode);
+    if (!GATE_MODES.includes(v)) return res.status(400).json({ ok: false, error: '알 수 없는 설정값입니다.' });
+    await saveGateMode(v);
+  }
+  if (req.body.stage1 !== undefined) {
+    await saveStage1(txt(req.body.stage1) === 'true');
+  }
   res.json({ ok: true, gates: computeGates() });
 });
 

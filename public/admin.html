@@ -91,10 +91,20 @@
       <div id="tab-review" style="display:none;">
         <div class="panel" style="padding:20px 26px;margin-bottom:18px;">
           <p class="hint" style="margin:0;padding-left:0;">
-            1차 서면평가 점수를 입력하고, 2차 발표평가에 진출할 참가자를 체크한 뒤 <strong>저장</strong>을 눌러 주세요.
-            통과로 등록되면 해당 참가자의 ‘접수 확인’ 화면에 <strong>2차 발표자료 제출</strong> 항목이 나타납니다.
+            1차 서면평가 점수를 입력하고, 2차 발표평가에 진출할 참가자를 체크한 뒤 <strong>전체 저장</strong>을 눌러 주세요.
+            저장만으로는 참가자 화면에 아무것도 보이지 않습니다. 아래 <strong>‘1차 결과 공개’</strong> 를 켜야
+            참가자의 ‘접수 확인’ 화면에 결과 안내와 <strong>2차 발표자료 제출</strong> 항목이 나타납니다.
           </p>
           <div class="msg" id="rvMsg" style="margin-top:12px;"></div>
+
+          <div class="pub-row" id="pubRow">
+            <div class="pub-txt">
+              <strong>1차 결과 공개</strong>
+              <span>켜면 참가자의 ‘접수 확인’ 화면 맨 위에 통과·미통과 안내가 나타납니다.
+                    <b>채점과 통과 체크를 모두 끝내고 저장한 뒤</b> 켜 주세요.</span>
+            </div>
+            <button type="button" class="pub-btn" id="pubBtn">불러오는 중…</button>
+          </div>
         </div>
         <div class="admin-bar">
           <span style="font-weight:800;color:var(--gu-deep);">통과 <span id="cntPass">0</span>팀 · 전체 <span id="cntAllApps">0</span>팀</span>
@@ -175,6 +185,7 @@
   }
 
   /* ---------- 접수 개폐 ---------- */
+  let STAGE1 = false;
   const MODE_LABEL = {
     auto: '일정에 따름 (자동)',
     open: '강제로 열기',
@@ -210,7 +221,11 @@
 
   async function loadGates() {
     const j = await (await fetch('/api/admin/settings')).json();
-    if (j.ok) drawGates(j.gates, j.schedule || {});
+    if (j.ok) {
+      drawGates(j.gates, j.schedule || {});
+      STAGE1 = !!(j.gates && j.gates.stage1);
+      drawPub();
+    }
   }
 
   async function saveGate(mode) {
@@ -243,6 +258,31 @@
         </td>
       </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:40px;">접수된 신청이 없습니다.</td></tr>';
   }
+
+  /* 1차 결과 공개 스위치 */
+  function drawPub() {
+    const btn = document.getElementById('pubBtn');
+    btn.textContent = STAGE1 ? '공개 중 · 끄기' : '비공개 · 켜기';
+    btn.className = 'pub-btn' + (STAGE1 ? ' on' : '');
+    document.getElementById('pubRow').classList.toggle('on', STAGE1);
+  }
+  document.getElementById('pubBtn').onclick = async () => {
+    const box = document.getElementById('rvMsg');
+    LAITY.hideMsg(box);
+    const next = !STAGE1;
+    if (next && !confirm('참가자 화면에 1차 결과를 공개합니다.\n채점과 2차 진출 체크를 모두 저장하셨나요?')) return;
+    const r = await fetch('/api/admin/settings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage1: String(next) }),
+    });
+    const j = await r.json();
+    if (!j.ok) return LAITY.msg(box, 'err', j.error || '저장에 실패했습니다.');
+    STAGE1 = !!(j.gates && j.gates.stage1);
+    drawPub();
+    LAITY.msg(box, 'ok', STAGE1
+      ? '1차 결과를 공개했습니다. 참가자가 접수 확인 화면에서 결과를 볼 수 있습니다.'
+      : '1차 결과를 다시 비공개로 바꿨습니다.');
+  };
 
   document.getElementById('rvSaveAll').onclick = async () => {
     const box = document.getElementById('rvMsg');
