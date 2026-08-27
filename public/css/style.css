@@ -699,3 +699,15 @@ table.adm .none { color: var(--ink-3); }
 .pub-btn:hover { border-color: var(--ink-3); }
 .pub-btn.on { background: var(--gu-deep); border-color: var(--gu-deep); color: #fff; }
 
+/* ---------- 2차 발표평가 일정 안내 ---------- */
+.s2-when {
+  margin: 0 0 20px; padding: 16px 20px; border-radius: var(--radius-sm);
+  background: var(--gu-green-xl); border: 1px solid rgba(158, 189, 59, .5);
+  display: grid; gap: 8px;
+}
+.s2-when .row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.s2-when .k {
+  flex: none; width: 68px; font-size: 13px; font-weight: 800; color: var(--gu-green-d);
+}
+.s2-when .v { font-size: 16px; font-weight: 800; color: var(--gu-deep); letter-spacing: -.02em; }
+.s2-when .v .sub { font-size: 13px; font-weight: 700; color: var(--ink-3); letter-spacing: 0; }

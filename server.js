@@ -172,13 +172,29 @@ async function saveStage1(on) {
   else await settings.insert({ id: U.randomId(), stage1: !!on });
 }
 
+/* 2차 발표평가 일시 — 'YYYY-MM-DDTHH:MM' 형태의 한국시간 문자열입니다.
+ * 화면 안내용으로만 쓰이며, 제출 자체를 막지는 않습니다. */
+const STAGE2_AT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+
+function stage2At() {
+  const v = (settings.all()[0] || {}).stage2At;
+  return STAGE2_AT_RE.test(String(v || '')) ? v : '';
+}
+
+async function saveStage2At(v) {
+  const val = STAGE2_AT_RE.test(String(v || '')) ? String(v) : '';
+  const row = settings.all()[0];
+  if (row) await settings.update(row.id, { stage2At: val });
+  else await settings.insert({ id: U.randomId(), stage2At: val });
+}
+
 function computeGates() {
   const mode = gateMode();
   const s = CONFIG.schedule || {};
   const today = U.todayISO();
   const inRange = !!s.applyOpen && !!s.applyClose && today >= s.applyOpen && today <= s.applyClose;
   const open = mode === 'open' ? true : mode === 'closed' ? false : inRange;
-  return { open, mode, stage1: stage1Open() };
+  return { open, mode, stage1: stage1Open(), stage2At: stage2At() };
 }
 
 /* ---------------------------------------------------------------
@@ -558,6 +574,13 @@ app.post('/api/admin/settings', async (req, res) => {
   if (req.body.stage1 !== undefined) {
     await saveStage1(txt(req.body.stage1) === 'true');
   }
+  if (req.body.stage2At !== undefined) {
+    const v = txt(req.body.stage2At);
+    if (v !== '' && !STAGE2_AT_RE.test(v)) {
+      return res.status(400).json({ ok: false, error: '2차 발표평가 일시를 날짜와 시간까지 모두 선택해 주세요.' });
+    }
+    await saveStage2At(v);
+  }
   res.json({ ok: true, gates: computeGates() });
 });
 
@@ -636,7 +659,11 @@ app.post('/api/admin/applications/delete', async (req, res) => {
 app.get('/api/admin/file/:fileId', async (req, res) => {
   if (!isAdmin(req)) return denyAdmin(res);
   for (const row of apps.all()) {
-    const all = [row.files && row.files.proposal, ...((row.files && row.files.extras) || [])].filter(Boolean);
+    const all = [
+      row.files && row.files.proposal,
+      row.files && row.files.presentation,
+      ...((row.files && row.files.extras) || []),
+    ].filter(Boolean);
     const meta = all.find((f) => f.id === req.params.fileId);
     if (meta) return sendDownload(res, meta);
   }
@@ -658,6 +685,25 @@ app.get('/api/admin/files.zip', async (req, res) => {
       const buf = await readStored(meta);
       if (buf) zip.addBuffer(`${folder}/${U.safeName(name)}`, buf);
     }
+  }
+  zip.finish();
+});
+
+/** 2차 발표자료만 한 번에 내려받기 */
+app.get('/api/admin/presentations.zip', async (req, res) => {
+  if (!isAdmin(req)) return denyAdmin(res);
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', U.contentDisposition(`LAITY_2차발표자료_${U.todayISO()}.zip`));
+  const zip = new ZipWriter(res);
+  const list = apps.all()
+    .filter((r) => r.passed1 && r.files && r.files.presentation)
+    .sort((a, b) => (a.no > b.no ? 1 : -1));
+  for (const row of list) {
+    const meta = row.files.presentation;
+    const ext = (meta.original.match(/\.[^.]+$/) || [''])[0];
+    const base = U.safeName(`${row.no}_${row.leader.name}_${row.caseName}`);
+    const buf = await readStored(meta);
+    if (buf) zip.addBuffer(base + ext, buf);
   }
   zip.finish();
 });

@@ -167,6 +167,11 @@
         <h2><span class="n">🎤</span> 2차 발표평가</h2>
         <p class="hint">1차 서면평가를 통과하셨습니다. 발표자료를 준비해 아래에 올려 주세요.</p>
 
+        <div class="s2-when" id="s2When" style="display:none;">
+          <div class="row"><span class="k">발표 일시</span><span class="v" id="s2Date"></span></div>
+          <div class="row"><span class="k">자료 제출</span><span class="v" id="s2Due"></span></div>
+        </div>
+
         <div class="field">
           <span class="lb">발표자료 안내</span>
           <p class="desc">발표는 <b>PT 발표 5분 + 질의응답 5분</b>, 총 10분으로 진행됩니다. 자료의 형식과 분량은 자유롭게 정하시되, <b>5분 안에 발표하실 수 있도록</b> 준비해 주세요.</p>
@@ -239,8 +244,7 @@
         <div class="rbox pass">
           <div class="rico">🎉</div>
           <h3>축하드립니다! <b>2차 발표평가</b>에 진출하셨습니다.</h3>
-          <p>1차 서면평가를 통과하셨습니다. 이 화면 <b>맨 아래 ‘2차 발표평가’</b> 항목에서
-             발표자료를 준비해 제출해 주세요.</p>
+          <p>1차 서면평가를 통과하셨습니다.</p>
           <button type="button" class="btn btn-primary" id="goStage2">2차 발표자료 제출하러 가기 ↓</button>
         </div>`;
       document.getElementById('goStage2').onclick = () => {
@@ -252,9 +256,10 @@
         <div class="rbox miss">
           <div class="rico">🌱</div>
           <h3>참여해 주셔서 진심으로 감사드립니다.</h3>
-          <p>아쉽게도 이번 2차 발표평가 진출은 어렵게 되었습니다.
-             보내 주신 사례 하나하나가 우리 대학 행정에 큰 자산이 되었습니다.
-             앞으로도 변함없는 관심과 참여를 부탁드립니다.</p>
+          <p>제1회 L‘AI’TY 경진대회에 소중한 시간을 들여 훌륭한 작품을 완성하고 지원해 주셔서
+             깊은 감사의 말씀을 드립니다. 출품해 주신 모든 작품에서 뜨거운 열정과 깊은 고민을
+             느낄 수 있었습니다. 모든 분께 좋은 소식을 전해 드리면 좋겠지만, 제한된 수상 인원으로 인해
+             아쉽게도 이번 심사에서는 선정되지 못하셨음을 안내해 드립니다.</p>
         </div>`;
     }
   }
@@ -304,10 +309,40 @@
     })();
   }
 
+  /* 2차 발표평가 일시 안내 (관리자가 지정한 한국시간 기준, 지정하지 않으면 표시하지 않습니다) */
+  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function fmtKST(y, m, d, hh, mm) {
+    const w = WEEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+    const ap = hh < 12 ? '오전' : '오후';
+    const h12 = hh % 12 === 0 ? 12 : hh % 12;
+    const time = mm === 0 ? `${ap} ${h12}시` : `${ap} ${h12}시 ${mm}분`;
+    return `${y}. ${m}. ${d}.(${w}) ${time}`;
+  }
+
+  function drawStage2When() {
+    const box = document.getElementById('s2When');
+    const at = LAITY.gates.stage2At || '';
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(at);
+    if (!m) { box.style.display = 'none'; return; }
+    const [, Y, M, D, H, Mi] = m.map(Number);
+
+    // 제출 마감 안내 = 발표 전날 오후 6시 (한국시간)
+    const prev = new Date(Date.UTC(Y, M - 1, D));
+    prev.setUTCDate(prev.getUTCDate() - 1);
+    const dueTxt = fmtKST(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate(), 18, 0);
+
+    document.getElementById('s2Date').textContent = fmtKST(Y, M, D, H, Mi);
+    document.getElementById('s2Due').innerHTML =
+      `<b>${dueTxt}</b> 까지 <span class="sub">(발표 전날)</span>`;
+    box.style.display = '';
+  }
+
   function renderStage2(a) {
     const panel = document.getElementById('stage2Panel');
     if (!LAITY.gates.stage1 || !a.passed1) { panel.style.display = 'none'; return; }
     panel.style.display = '';
+    drawStage2When();
     const f = pptFile(a);
     document.getElementById('curPpt').innerHTML = f
       ? `<div class="fileitem"><span>📊</span><span class="nm">${LAITY.esc(f.original)}</span>
