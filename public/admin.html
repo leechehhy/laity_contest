@@ -108,11 +108,13 @@
 
           <div class="pub-row" id="s2Row">
             <div class="pub-txt">
-              <strong>2차 발표평가 일시</strong>
-              <span>날짜와 시간(한국시간)을 지정하면 참가자의 2차 발표평가 화면에 함께 안내됩니다.
-                    비워 두면 일정 안내가 표시되지 않습니다.</span>
+              <strong>2차 발표평가 일정</strong>
+              <span>일자 · 시간 · 장소를 지정하면 참가자의 2차 발표평가 화면과 안내 팝업에 함께 표시됩니다. (한국시간 기준)
+                    자료 제출 마감은 <b>발표 전날 18시</b>로 자동 안내됩니다. 일자를 비우면 안내가 표시되지 않습니다.</span>
             </div>
-            <input type="datetime-local" id="s2At" step="600" style="width:230px;flex:none;">
+            <input type="date" id="s2At" style="width:160px;flex:none;">
+            <input type="text" id="s2Time" placeholder="예: 09:30 ~ 12:00" style="width:150px;flex:none;">
+            <input type="text" id="s2Place" placeholder="예: 행정관 3층 스마트강의실" style="width:220px;flex:none;">
             <button type="button" class="btn btn-green btn-sm" id="s2Save" style="flex:none;">저장</button>
             <button type="button" class="btn btn-line btn-sm" id="s2Clear" style="flex:none;">지우기</button>
           </div>
@@ -199,6 +201,8 @@
   /* ---------- 접수 개폐 ---------- */
   let STAGE1 = false;
   let STAGE2_AT = '';
+  let STAGE2_PLACE = '';
+  let STAGE2_TIME = '';
   const MODE_LABEL = {
     auto: '일정에 따름 (자동)',
     open: '강제로 열기',
@@ -238,6 +242,8 @@
       drawGates(j.gates, j.schedule || {});
       STAGE1 = !!(j.gates && j.gates.stage1);
       STAGE2_AT = (j.gates && j.gates.stage2At) || '';
+      STAGE2_PLACE = (j.gates && j.gates.stage2Place) || '';
+      STAGE2_TIME = (j.gates && j.gates.stage2Time) || '';
       drawPub(); drawStage2At();
     }
   }
@@ -301,6 +307,8 @@
   /* 2차 발표평가 일시 */
   function drawStage2At() {
     document.getElementById('s2At').value = STAGE2_AT || '';
+    document.getElementById('s2Time').value = STAGE2_TIME || '';
+    document.getElementById('s2Place').value = STAGE2_PLACE || '';
     document.getElementById('s2Row').classList.toggle('on', !!STAGE2_AT);
   }
   async function postSettings(body, okText) {
@@ -313,17 +321,24 @@
     if (!j.ok) { LAITY.msg(box, 'err', j.error || '저장에 실패했습니다.'); return null; }
     STAGE1 = !!(j.gates && j.gates.stage1);
     STAGE2_AT = (j.gates && j.gates.stage2At) || '';
+    STAGE2_PLACE = (j.gates && j.gates.stage2Place) || '';
+    STAGE2_TIME = (j.gates && j.gates.stage2Time) || '';
     drawPub(); drawStage2At();
     LAITY.msg(box, 'ok', okText);
     return j;
   }
   document.getElementById('s2Save').onclick = () => {
     const v = document.getElementById('s2At').value;
-    if (!v) return LAITY.msg(document.getElementById('rvMsg'), 'err', '날짜와 시간을 선택해 주세요.');
-    postSettings({ stage2At: v }, '2차 발표평가 일시를 저장했습니다. (한국시간 기준)');
+    if (!v) return LAITY.msg(document.getElementById('rvMsg'), 'err', '발표 일자를 선택해 주세요.');
+    postSettings({
+      stage2At: v,
+      stage2Time: document.getElementById('s2Time').value,
+      stage2Place: document.getElementById('s2Place').value,
+    }, '2차 발표평가 일정을 저장했습니다. (한국시간 기준)');
   };
   document.getElementById('s2Clear').onclick = () => {
-    postSettings({ stage2At: '' }, '2차 발표평가 일시를 지웠습니다. 참가자 화면에 일정이 표시되지 않습니다.');
+    postSettings({ stage2At: '', stage2Time: '', stage2Place: '' },
+      '2차 발표평가 일정을 지웠습니다. 참가자 화면에 일정이 표시되지 않습니다.');
   };
 
   document.getElementById('rvSaveAll').onclick = async () => {

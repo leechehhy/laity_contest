@@ -174,18 +174,25 @@ async function saveStage1(on) {
 
 /* 2차 발표평가 일시 — 'YYYY-MM-DDTHH:MM' 형태의 한국시간 문자열입니다.
  * 화면 안내용으로만 쓰이며, 제출 자체를 막지는 않습니다. */
-const STAGE2_AT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const STAGE2_AT_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function stage2At() {
-  const v = (settings.all()[0] || {}).stage2At;
-  return STAGE2_AT_RE.test(String(v || '')) ? v : '';
+  const v = String((settings.all()[0] || {}).stage2At || '').slice(0, 10);
+  return STAGE2_AT_RE.test(v) ? v : '';
 }
 
-async function saveStage2At(v) {
-  const val = STAGE2_AT_RE.test(String(v || '')) ? String(v) : '';
+function stage2Place() {
+  return String((settings.all()[0] || {}).stage2Place || '');
+}
+
+function stage2Time() {
+  return String((settings.all()[0] || {}).stage2Time || '');
+}
+
+async function saveStage2(patch) {
   const row = settings.all()[0];
-  if (row) await settings.update(row.id, { stage2At: val });
-  else await settings.insert({ id: U.randomId(), stage2At: val });
+  if (row) await settings.update(row.id, patch);
+  else await settings.insert(Object.assign({ id: U.randomId() }, patch));
 }
 
 function computeGates() {
@@ -194,7 +201,7 @@ function computeGates() {
   const today = U.todayISO();
   const inRange = !!s.applyOpen && !!s.applyClose && today >= s.applyOpen && today <= s.applyClose;
   const open = mode === 'open' ? true : mode === 'closed' ? false : inRange;
-  return { open, mode, stage1: stage1Open(), stage2At: stage2At() };
+  return { open, mode, stage1: stage1Open(), stage2At: stage2At(), stage2Place: stage2Place(), stage2Time: stage2Time() };
 }
 
 /* ---------------------------------------------------------------
@@ -577,9 +584,15 @@ app.post('/api/admin/settings', async (req, res) => {
   if (req.body.stage2At !== undefined) {
     const v = txt(req.body.stage2At);
     if (v !== '' && !STAGE2_AT_RE.test(v)) {
-      return res.status(400).json({ ok: false, error: '2차 발표평가 일시를 날짜와 시간까지 모두 선택해 주세요.' });
+      return res.status(400).json({ ok: false, error: '2차 발표평가 일자를 선택해 주세요.' });
     }
-    await saveStage2At(v);
+    await saveStage2({ stage2At: v });
+  }
+  if (req.body.stage2Place !== undefined) {
+    await saveStage2({ stage2Place: txt(req.body.stage2Place).slice(0, 60) });
+  }
+  if (req.body.stage2Time !== undefined) {
+    await saveStage2({ stage2Time: txt(req.body.stage2Time).slice(0, 40) });
   }
   res.json({ ok: true, gates: computeGates() });
 });

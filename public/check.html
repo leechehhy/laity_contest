@@ -169,12 +169,21 @@
 
         <div class="s2-when" id="s2When" style="display:none;">
           <div class="row"><span class="k">발표 일시</span><span class="v" id="s2Date"></span></div>
+          <div class="row" id="s2PlaceRow"><span class="k">발표 장소</span><span class="v" id="s2Place"></span></div>
           <div class="row"><span class="k">자료 제출</span><span class="v" id="s2Due"></span></div>
         </div>
 
         <div class="field">
           <span class="lb">발표자료 안내</span>
-          <p class="desc">발표는 <b>PT 발표 5분 + 질의응답 5분</b>, 총 10분으로 진행됩니다. 자료의 형식과 분량은 자유롭게 정하시되, <b>5분 안에 발표하실 수 있도록</b> 준비해 주세요.</p>
+          <ul class="s2-facts">
+            <li><b>5분 발표 + 5분 질의응답</b>으로 구성</li>
+            <li><b>발표자료 형식과 분량에 제약이 없음</b> <span class="sub">(ppt, 한글, pdf, 영상 등)</span></li>
+          </ul>
+          <ul class="s2-list">
+            <li><b>시연을 중심으로</b> 준비해 주세요. 라이브 시연이 어려우시면 녹화 영상이나 화면 캡처로 대체하셔도 됩니다.</li>
+            <li>제출하신 자료는 <b>발표용 PC에 미리 준비</b>해 두겠습니다. 개인 노트북을 쓰실 경우 미리 알려 주세요.</li>
+          </ul>
+          <button type="button" class="s2-more" id="s2MoreBtn">발표 준비 안내 자세히 보기</button>
         </div>
 
         <div class="field">
@@ -204,6 +213,64 @@
 </div>
 
 <div id="footer"></div>
+
+<div class="modal" id="s2Modal">
+  <div class="modal-box guide">
+    <div class="gd-head">
+      <h3>2차 발표평가 준비 안내</h3>
+      <button type="button" class="gd-x" id="s2ModalX" aria-label="닫기">✕</button>
+    </div>
+    <div class="gd-body">
+
+      <div class="gsec">
+        <h4>1. 발표 진행</h4>
+        <ul>
+          <li>발표평가는 <b><span id="gdDay">9월 9일(수) 09:30 ~ 12:00</span></b> 에 진행됩니다.</li>
+          <li><b>발표 5분 + 질의응답 5분</b>, 총 10분으로 진행됩니다.</li>
+          <li>5분이 지나면 마무리를 요청드릴 수 있으니 분량을 조절해 주세요.</li>
+          <li>발표 순서는 <b>추후 개별 안내</b>드립니다.</li>
+          <li>팀으로 참가하신 경우 <b>전원 참석</b>을 권장하며, 발표는 나눠서 하셔도 됩니다.</li>
+          <li>발표에 앞서 <b>리허설</b>이 진행됩니다. 제출하신 자료가 정상적으로 열리는지 확인하고
+              동선을 점검하는 시간이니, <b>시작 시각에 맞춰 참석</b>해 주시기 바랍니다.</li>
+        </ul>
+        <div class="gwarn">평가 당일 참석하지 못하신 경우 <b>자동 탈락 처리</b>되오니, 일정을 꼭 확인해 주시기 바랍니다.</div>
+      </div>
+
+      <div class="gsec">
+        <h4>2. 발표자료</h4>
+        <ul>
+          <li><b>형식과 분량에 제약이 없습니다.</b> ppt, 한글, pdf, 영상 등 자유롭게 준비해 주세요.</li>
+          <li><b><span id="gdDue">9월 8일(화)</span> 18시까지</b> 업로드 하시면 발표용 PC에 미리 준비해 두겠습니다.</li>
+          <li>영상이 들어간 자료는 <b>영상 파일도 함께</b> 올려 주세요.</li>
+        </ul>
+      </div>
+
+      <div class="gsec">
+        <h4>3. 시연</h4>
+        <ul>
+          <li><b>실제 업무에서 작동하는 모습</b>을 보여 주시는 것이 가장 좋습니다.</li>
+          <li>현장에서 직접 시연하기 어려우시면 <b>녹화 영상이나 화면 캡처로 대체</b>하셔도 평가에 불이익이 없습니다.</li>
+          <li>인터넷 접속이나 도구 로그인이 필요하시면 <b>계정을 미리 준비</b>해 주세요.</li>
+        </ul>
+        <div class="gtip">접속이 끊기거나 도구가 응답하지 않는 경우에 대비해, <b>미리 녹화해 둔 영상을 백업</b>으로 준비하시길 권해 드립니다.</div>
+      </div>
+
+      <div class="gsec">
+        <h4>4. 당일 유의사항</h4>
+        <ul>
+          <li>제출하신 자료 외에 추가 자료가 있으시면 <b>USB나 개인 노트북</b>에 담아 오셔도 됩니다.</li>
+          <li>개인 노트북으로 발표하실 경우 연결에 시간이 걸리므로 <b>미리 알려 주시기 바랍니다.</b></li>
+          <li>시연 화면에 실제 학사·인사 자료가 표시될 경우 <b>이름·학번 등은 가려</b> 주세요.</li>
+          <li>부득이 참석이 어려우시면 담당자에게 미리 연락 주시기 바랍니다.</li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="gd-foot">
+      <button type="button" class="btn btn-green btn-sm" id="s2ModalOk">확인했습니다</button>
+    </div>
+  </div>
+</div>
 
 <script src="/js/common.js"></script>
 <script>
@@ -312,31 +379,48 @@
   /* 2차 발표평가 일시 안내 (관리자가 지정한 한국시간 기준, 지정하지 않으면 표시하지 않습니다) */
   const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
 
-  function fmtKST(y, m, d, hh, mm) {
+  function fmtDay(y, m, d) {
     const w = WEEK[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
-    const ap = hh < 12 ? '오전' : '오후';
-    const h12 = hh % 12 === 0 ? 12 : hh % 12;
-    const time = mm === 0 ? `${ap} ${h12}시` : `${ap} ${h12}시 ${mm}분`;
-    return `${y}. ${m}. ${d}.(${w}) ${time}`;
+    return `${y}. ${m}. ${d}.(${w})`;
   }
 
   function drawStage2When() {
     const box = document.getElementById('s2When');
     const at = LAITY.gates.stage2At || '';
-    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(at);
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(at);
     if (!m) { box.style.display = 'none'; return; }
-    const [, Y, M, D, H, Mi] = m.map(Number);
+    const [, Y, M, D] = m.map(Number);
 
-    // 제출 마감 안내 = 발표 전날 오후 6시 (한국시간)
+    // 제출 마감 안내 = 발표 전날 18시 (한국시간)
     const prev = new Date(Date.UTC(Y, M - 1, D));
     prev.setUTCDate(prev.getUTCDate() - 1);
-    const dueTxt = fmtKST(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate(), 18, 0);
+    const dueTxt = fmtDay(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate());
 
-    document.getElementById('s2Date').textContent = fmtKST(Y, M, D, H, Mi);
-    document.getElementById('s2Due').innerHTML =
-      `<b>${dueTxt}</b> 까지 <span class="sub">(발표 전날)</span>`;
+    const time = LAITY.gates.stage2Time || '';
+    document.getElementById('s2Date').textContent = fmtDay(Y, M, D) + (time ? ' ' + time : '');
+    document.getElementById('s2Due').textContent = `${dueTxt} 18시 까지`;
+
+    const short = (y, mo, d) => `${mo}월 ${d}일(${WEEK[new Date(Date.UTC(y, mo - 1, d)).getUTCDay()]})`;
+    document.getElementById('gdDay').textContent = short(Y, M, D) + (time ? ' ' + time : '');
+    document.getElementById('gdDue').textContent =
+      short(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate());
+
+    const place = LAITY.gates.stage2Place || '';
+    document.getElementById('s2PlaceRow').style.display = place ? '' : 'none';
+    document.getElementById('s2Place').textContent = place;
     box.style.display = '';
   }
+
+  /* 발표 준비 안내 팝업 */
+  (function () {
+    const m = document.getElementById('s2Modal');
+    const close = () => m.classList.remove('show');
+    document.getElementById('s2MoreBtn').onclick = () => m.classList.add('show');
+    document.getElementById('s2ModalX').onclick = close;
+    document.getElementById('s2ModalOk').onclick = close;
+    m.onclick = (e) => { if (e.target === m) close(); };
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  })();
 
   function renderStage2(a) {
     const panel = document.getElementById('stage2Panel');
