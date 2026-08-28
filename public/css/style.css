@@ -732,11 +732,19 @@ table.adm .none { color: var(--ink-3); }
 .s2-list li b { color: var(--ink); }
 
 .s2-more {
-  margin-top: 16px; width: 100%; padding: 12px; border-radius: var(--radius-sm); cursor: pointer;
-  border: 1.5px dashed var(--gu-green); background: var(--gu-green-xl); color: var(--gu-deep);
-  font-family: inherit; font-size: 14.5px; font-weight: 800; transition: .15s;
+  margin-top: 18px; width: 100%; padding: 12px 20px; border-radius: var(--radius-sm); cursor: pointer;
+  border: 2px solid var(--gu-deep); background: var(--gu-deep); color: #fff;
+  font-family: inherit; font-size: 15.5px; font-weight: 800; letter-spacing: -.02em;
+  display: flex; align-items: center; gap: 12px; text-align: left; transition: .16s;
+  box-shadow: 0 4px 14px rgba(0, 81, 42, .22);
 }
-.s2-more:hover { background: #e7f0d3; border-style: solid; }
+.s2-more img { width: 42px; height: auto; flex: none; }
+.s2-more span { flex: 1; }
+.s2-more em { font-style: normal; font-size: 20px; color: var(--mas-yellow); line-height: 1; }
+.s2-more:hover {
+  background: var(--gu-deep-2); border-color: var(--gu-deep-2);
+  transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0, 81, 42, .3);
+}
 
 /* 안내 팝업 */
 .modal-box.guide {
