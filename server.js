@@ -189,6 +189,10 @@ function stage2Time() {
   return String((settings.all()[0] || {}).stage2Time || '');
 }
 
+function stage2Rehearsal() {
+  return String((settings.all()[0] || {}).stage2Rehearsal || '');
+}
+
 async function saveStage2(patch) {
   const row = settings.all()[0];
   if (row) await settings.update(row.id, patch);
@@ -201,7 +205,7 @@ function computeGates() {
   const today = U.todayISO();
   const inRange = !!s.applyOpen && !!s.applyClose && today >= s.applyOpen && today <= s.applyClose;
   const open = mode === 'open' ? true : mode === 'closed' ? false : inRange;
-  return { open, mode, stage1: stage1Open(), stage2At: stage2At(), stage2Place: stage2Place(), stage2Time: stage2Time() };
+  return { open, mode, stage1: stage1Open(), stage2At: stage2At(), stage2Place: stage2Place(), stage2Time: stage2Time(), stage2Rehearsal: stage2Rehearsal() };
 }
 
 /* ---------------------------------------------------------------
@@ -593,6 +597,9 @@ app.post('/api/admin/settings', async (req, res) => {
   }
   if (req.body.stage2Time !== undefined) {
     await saveStage2({ stage2Time: txt(req.body.stage2Time).slice(0, 40) });
+  }
+  if (req.body.stage2Rehearsal !== undefined) {
+    await saveStage2({ stage2Rehearsal: txt(req.body.stage2Rehearsal).slice(0, 60) });
   }
   res.json({ ok: true, gates: computeGates() });
 });

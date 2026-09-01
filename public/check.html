@@ -170,7 +170,7 @@
         <div class="s2-when" id="s2When" style="display:none;">
           <div class="row"><span class="k">발표 일시</span><span class="v" id="s2Date"></span></div>
           <div class="row" id="s2PlaceRow"><span class="k">발표 장소</span><span class="v" id="s2Place"></span></div>
-          <div class="row"><span class="k">자료 제출</span><span class="v" id="s2Due"></span></div>
+          <div class="row" id="s2RehRow"><span class="k">리허설</span><span class="v" id="s2Reh"></span></div>
         </div>
 
         <div class="field">
@@ -178,11 +178,11 @@
           <ul class="s2-facts">
             <li><b>발표(시연) 5분 + 질의응답 5분</b>으로 구성</li>
             <li><b>시연 중심</b>으로 진행 <span class="sub">(영상으로 대체 가능)</span></li>
-            <li><b>발표에 필요한 자료는 자유롭게 제출</b> <span class="sub">(형식·분량 제한 없음)</span></li>
           </ul>
           <ul class="s2-list">
-            <li><b>시연을 준비</b>해 주세요. <b>개인 노트북을 지참</b>하시어 연결해 사용하실 수 있습니다.</li>
-            <li>시연 영상·발표자료 등 미리 띄워 둘 자료를 올려 주시면 <b>발표용 PC에 준비</b>해 두겠습니다.</li>
+            <li><b>시연 중심으로</b> 발표를 준비해 주세요. 자료의 형식과 분량에는 제한이 없습니다.</li>
+            <li><b>USB 또는 개인 노트북</b> 지참 가능합니다.</li>
+            <li><b>리허설에 참석</b>하시어 발표 자료를 점검하시기 바랍니다.</li>
           </ul>
           <button type="button" class="s2-more" id="s2MoreBtn">
             <img src="/img/mascot-mega.png" alt="">
@@ -191,21 +191,6 @@
           </button>
         </div>
 
-        <div class="field">
-          <span class="lb">발표 자료 제출 <span class="opt">선택</span></span>
-          <div class="filelist" id="curPpt"></div>
-          <label class="filebox" for="presentation" style="margin-top:10px;">
-            <div class="ico">📊</div>
-            <div class="t">발표에 사용할 자료 올리기 / 다시 올리기</div>
-            <div class="s">클릭하거나 파일을 이곳에 끌어다 놓으세요 · 기존 파일이 있으면 교체됩니다 · 최대 <span class="maxsize"></span></div>
-            <input type="file" id="presentation">
-          </label>
-          <div class="filelist" id="pptList"></div>
-          <div style="text-align:right;margin-top:12px;">
-            <button class="btn btn-green" id="pptSaveBtn">발표자료 제출</button>
-          </div>
-          <div class="msg" id="pptMsg" style="margin-top:12px;"></div>
-        </div>
       </div>
 
       <div class="submit-bar" id="submitBar">
@@ -233,9 +218,8 @@
           <li>발표평가는 <b><span id="gdDay">9월 9일(수)</span> 10:00 ~ 12:00</b> 에 진행됩니다.</li>
           <li><b>발표(시연) 5분 + 질의응답 5분</b>, 총 10분으로 진행됩니다.</li>
           <li>발표 시간을 초과하지 않도록 <b>5분 내에 마무리</b>하실 수 있게 분량을 조절해 주세요.</li>
-          <li>팀으로 참가하신 경우 <b>전원 참석</b>을 권장하며, 발표는 나눠서 하셔도 됩니다.</li>
-          <li>본 평가 <b>30분 전 리허설</b>이 진행됩니다. 제출하신 자료를 점검하실 수 있는
-              시간이 주어지오니 참석해 주시기 바랍니다.</li>
+          <li>발표 하루 전 <b><span id="gdReh">리허설</span></b>이 진행됩니다.
+              발표하실 자료를 <b>현장에서 직접 띄워 확인</b>하실 수 있는 시간이니 꼭 참석해 주시기 바랍니다.</li>
         </ul>
         <div class="gwarn">평가 당일 참석하지 못하신 경우 <b>자동 탈락 처리</b>되오니, 일정을 꼭 확인해 주시기 바랍니다.</div>
       </div>
@@ -244,18 +228,17 @@
         <h4>2. 발표자료</h4>
         <ul>
           <li>발표는 <b>시연을 중심으로</b> 진행합니다. 현장 시연이 어려우시면 <b>영상으로 대체</b>하셔도 됩니다.</li>
-          <li>시연 영상, 발표자료 등 발표에 필요한 자료는 <b>형식에 관계없이 자유롭게</b> 올려 주세요.
-              (ppt, 한글, pdf, 영상 등) 다만 자료 설명보다는 <b>시연 중심의 발표</b>를 준비해 주시기 바랍니다.</li>
-          <li><b><span id="gdDue">9월 8일(화)</span> 18시까지</b> 업로드해 주시면
-              <b>발표용 PC에 미리 준비</b>해 두겠습니다.</li>
+          <li>자료의 형식과 분량에는 제한이 없습니다. (ppt, 한글, pdf, 영상 등)
+              다만 자료 설명보다는 <b>시연 중심의 발표</b>를 준비해 주시기 바랍니다.</li>
+          <li>발표 자료는 <b>당일 USB 또는 개인 노트북</b>에 담아 오시면 됩니다.</li>
         </ul>
       </div>
 
       <div class="gsec">
         <h4>3. 당일 유의사항</h4>
         <ul>
-          <li>제출하신 자료 외의 추가 자료가 있으시면 <b>USB나 개인 노트북</b> 사용이 가능합니다.</li>
-          <li>개인 노트북으로 발표하실 경우 연결에 시간이 걸리므로 <b>미리 알려 주시기 바랍니다.</b></li>
+          <li>발표용 PC를 이용하시거나 <b>개인 노트북을 연결</b>해 발표하실 수 있습니다.</li>
+          <li>연결 상태와 자료 재생은 <b>리허설 때 함께 확인</b>해 드립니다.</li>
           <li>부득이 참석이 어려우시면 담당자에게 미리 연락 주시기 바랍니다.</li>
         </ul>
       </div>
@@ -291,8 +274,6 @@
   const removeExtras = [];
 
   function val(id, v) { const e = document.getElementById(id); if (e) e.value = v || ''; }
-
-  function pptFile(a) { return a.files && a.files.presentation; }
 
   /* ---------- 1차 결과 안내 (관리자가 결과를 공개한 뒤에만 보입니다) ---------- */
   let cheered = false;
@@ -386,23 +367,21 @@
     if (!m) { box.style.display = 'none'; return; }
     const [, Y, M, D] = m.map(Number);
 
-    // 제출 마감 안내 = 발표 전날 18시 (한국시간)
-    const prev = new Date(Date.UTC(Y, M - 1, D));
-    prev.setUTCDate(prev.getUTCDate() - 1);
-    const dueTxt = fmtDay(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate());
-
     const time = LAITY.gates.stage2Time || '';
     document.getElementById('s2Date').textContent = fmtDay(Y, M, D) + (time ? ' ' + time : '');
-    document.getElementById('s2Due').textContent = `${dueTxt} 18시 까지`;
 
     const short = (y, mo, d) => `${mo}월 ${d}일(${WEEK[new Date(Date.UTC(y, mo - 1, d)).getUTCDay()]})`;
     document.getElementById('gdDay').textContent = short(Y, M, D);
-    document.getElementById('gdDue').textContent =
-      short(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate());
 
     const place = LAITY.gates.stage2Place || '';
     document.getElementById('s2PlaceRow').style.display = place ? '' : 'none';
     document.getElementById('s2Place').textContent = place;
+
+    const reh = LAITY.gates.stage2Rehearsal || '';
+    document.getElementById('s2RehRow').style.display = reh ? '' : 'none';
+    document.getElementById('s2Reh').textContent = reh;
+    document.getElementById('gdReh').textContent = reh ? `리허설(${reh})` : '리허설';
+
     box.style.display = '';
   }
 
@@ -422,12 +401,6 @@
     if (!LAITY.gates.stage1 || !a.passed1) { panel.style.display = 'none'; return; }
     panel.style.display = '';
     drawStage2When();
-    const f = pptFile(a);
-    document.getElementById('curPpt').innerHTML = f
-      ? `<div class="fileitem"><span>📊</span><span class="nm">${LAITY.esc(f.original)}</span>
-         <span class="sz">${LAITY.fmtSize(f.size)}</span>
-         <button type="button" onclick="dl('${f.id}')">받기</button></div>`
-      : `<div class="fileitem" style="color:var(--ink-3);">아직 제출된 발표자료가 없습니다.</div>`;
   }
 
   function render(a) {
@@ -483,31 +456,6 @@
     document.getElementById('viewArea').style.display = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  /* ---------- 2차 발표자료 ---------- */
-  document.getElementById('pptSaveBtn').onclick = async () => {
-    const box = document.getElementById('pptMsg');
-    LAITY.hideMsg(box);
-    const f = pickPpt.files()[0];
-    if (!f) return LAITY.msg(box, 'err', '제출하실 발표자료 파일을 선택해 주세요.');
-    const btn = document.getElementById('pptSaveBtn');
-    btn.disabled = true; btn.textContent = '제출 중...';
-    const fd = new FormData();
-    fd.append('no', auth.no);
-    fd.append('password', auth.password);
-    fd.append('presentation', f);
-    try {
-      const r = await fetch('/api/applications/presentation', { method: 'POST', body: fd });
-      const j = await r.json();
-      if (!j.ok) throw new Error(j.error);
-      pickPpt.clear();
-      render(j.application);
-      LAITY.msg(box, 'ok', '발표자료가 제출되었습니다.');
-    } catch (e) {
-      LAITY.msg(box, 'err', e.message);
-    }
-    btn.disabled = false; btn.textContent = '발표자료 제출';
-  };
 
   window.dl = async function (fileId) {
     const r = await fetch('/api/applications/file', {
@@ -606,7 +554,6 @@
   }
 
   ['dragover', 'drop'].forEach((ev) => window.addEventListener(ev, (e) => e.preventDefault()));
-  const pickPpt = bindFile('presentation', 'pptList');
   const pickProposal = bindFile('proposal', 'proposalList');
   const pickExtras = bindFile('extras', 'extrasList', true);
 
